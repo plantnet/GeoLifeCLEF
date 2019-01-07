@@ -66,10 +66,10 @@ class Raster(object):
         Loads a tiff file describing an environmental raster into a numpy array and...
 
         :param path: the path of the raster (the directory)
-        :param no_data: the value to use when NaN number are present. If False, then default values will be used
+        :param nan: the value to use when NaN number are present. If False, then default values will be used
         :param normalized: if True the raster will be normalized (minus the mean and divided by std)
         :param transform: if a function is given, it will be applied on each patch.
-        :param size: the size of a patch (sizexsize)
+        :param size: the size of a patch (size x size)
         :param one_hot: if True, each patch will have a one hot encoding representation given the values in the raster.
         :param attrib_column: the name of the column that contains the correct value to use in the raster
         :param max_val: the maximum value within the raster (used to reconstruct correct values in the raster)
@@ -216,7 +216,7 @@ class PatchExtractor(object):
         self.root_path = root_path
         self.size = size
 
-        self.verbose=verbose
+        self.verbose = verbose
 
         self.rasters = []
 
@@ -312,65 +312,3 @@ class PatchExtractor(object):
                 plt.close(fig)
         else:
             raise ValueError('Plot works only for tensors: size must be > 1...')
-
-
-if __name__ == '__main__':
-
-    import argparse
-
-    parser = argparse.ArgumentParser(description='extract environmental patches to disk')
-    parser.add_argument('rasters', type=str, help='the path to the raster directory')
-    parser.add_argument('dataset', type=str, help='the dataset in CSV format')
-    parser.add_argument('destination', type=str,
-                        help='The directory where the patches will be exported')
-
-    parser.add_argument('--size', dest='size', type=int, help='size of the final patch (default : 64)', default=64)
-    parser.add_argument('--normalized', dest='norm', type=bool, help='true if patch normalized (False by default)',
-                        default=False)
-
-    args = parser.parse_args()
-
-    df = pd.read_csv(args.dataset, sep=';', header='infer', quotechar='"', low_memory=False)
-
-    batch_size = 10000  # number of patch to extract simultaneously
-    modulo_disk = 1024  # number of patch per folder
-
-    # testing destination directory
-    if not os.path.isdir(args.destination):
-        os.mkdir(args.destination)
-
-    ext = PatchExtractor(args.rasters, size=args.size, verbose=True)
-
-    positions = []
-
-    export_count = 0
-
-    for idx, occurrence in enumerate(df.iterrows()):
-        # adding an occurrence latitude and longitude
-        positions.append((occurrence[1].Latitude, occurrence[1].Longitude))
-
-        # if the batch is full, extract and export
-        if len(positions) == batch_size or idx == len(df) - 1:
-            variables = []
-            for i, raster in enumerate(sorted(raster_metadata.keys())):
-                ext.clean()
-                ext.append(raster, normalized=args.norm)
-                variable = np.stack([ext[p] for p in positions])
-
-                variables.append(variable)
-
-            variables = np.concatenate(variables, axis=1)
-            # the shape of variables is (batch_size, nb_rasters, size, size)
-
-            for p_idx in range(variables.shape[0]):
-                folder = str(export_count // batch_size)
-                # testing destination directory
-                if not os.path.isdir(args.destination + '/' + folder):
-                    os.mkdir(args.destination + '/' + folder)
-                np.save(args.destination + '/' + folder + '/' + str(export_count % modulo_disk), variables[p_idx])
-
-                export_count += 1
-
-            # resetting positions for new batch
-            positions = []
-    print('done!')

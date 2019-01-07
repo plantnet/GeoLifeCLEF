@@ -7,10 +7,14 @@ development of location-based recommendation services (typically on mobile phone
 non-expert nature observers. Last but not least, it might serve educational purposes thanks to biodiversity discovery 
 applications providing functionalities such as contextualized educational pathways.
 
+The rest of this documents presents (1) the data, (2) the python code and the (3) R code.
+
+## 1. Data
+
+## 2. Python3
 The file ```environmental_raster_glc.py``` provides to the participant of the GLC19 challenge a mean to extract 
-environmental patches or vectors given the provided rasters. It enables online extraction as well as the dataset
-construction on disk.
-## Python3
+environmental patches or vectors given the provided rasters. Providing a set of input rasters, it enables the online (in memory) extraction of environmental patches at a given spatial position OR of the offline construction (on disk) of all the patches of a set of spatial positions. 
+
 The following examples are for *python3* but the code should work with *python2*.
 
 The ```environmental_raster_glc.py``` follows two goals: 
@@ -32,7 +36,7 @@ import numpy
 import matplotlib
 ```
 #### Constructing the Extractor
-The core object to manipulate is the ```PatchExtractor``` which will manage the multiple availble rasters.
+The core object to manipulate is the ```PatchExtractor``` which will manage the multiple available rasters.
 Constructing the extractor only requires to set up the ```root_path``` of the rasters data:
 
 ```python
@@ -96,7 +100,7 @@ initially set to have a one hot encoding as a single patch. In the previous imag
 a one hot encoding representation but is plotted as a single patch.
 
 ### Command line use
-Using all the rasters at once requires a significant amount of memory. For those who would rather
+Using the online extraction of patches is fast but requires a significant amount of memory to store all rasters. For those who would rather
 export the patches on disk, an additional functionality is provided.
 
 The patch corresponding to the csv dataset will be extracted using the following command:
@@ -130,5 +134,5 @@ optional arguments:
   --normalized NORM  true if patch normalized (False by default)
 ```
 
-## R
+## 3. R
 @Christophe
