@@ -96,8 +96,8 @@ initially set to have a one hot encoding as a single patch. In the previous imag
 a one hot encoding representation but is plotted as a single patch.
 
 ### Command line use
-Using all the rasters at once requires a significant amount of memory. For those who would rather
-export the patches on disk, an additional functionality is provided.
+Using all the rasters at once requires a significant amount of memory. Also, those not using Python for learning could use to access directly environmental patches on disk. 
+So, for those who would rather export the patches on disk, an additional functionality is provided.
 
 The patch corresponding to the csv dataset will be extracted using the following command:
 ``` 
