@@ -51,7 +51,7 @@ raster_metadata = {
     'etp': {'nan': 132},
     'oc_top': {'nan': 0},
     'pd_top': {'nan': 0},
-    'proxi_eau_fast': {'attrib_column': None, 'nan': -1},
+    'proxi_eau_fast': {'attrib_column': None, 'nan': -1, 'dtype': rasterio.ubyte},
     'text': {'nan': -1},
 }
 
@@ -61,7 +61,7 @@ class Raster(object):
     Raster is dedicated to a single raster management...
     """
     def __init__(self, path, nan=None, normalized=False, transform=None, size=64, one_hot=False,
-                 attrib_column='QUANTI', max_val=255, min_val=0):
+                 attrib_column='QUANTI', max_val=255, min_val=0, dtype=None):
         """
         Loads a tiff file describing an environmental raster into a numpy array and...
 
@@ -89,7 +89,10 @@ class Raster(object):
         # src.meta
         # to avoid the annoying corresponding warning, temporary warning disabling...
         warnings.filterwarnings("ignore")
-        src = rasterio.open(path + '/' + self.name + '.tif', nodata=nan)
+        if dtype is not None:
+            src = rasterio.open(path + '/' + self.name + '.tif', nodata=nan, dtype=dtype)
+        else:
+            src = rasterio.open(path + '/' + self.name + '.tif', nodata=nan)
         warnings.filterwarnings("default")
 
         if src.meta['crs'] is None:
@@ -119,8 +122,9 @@ class Raster(object):
         self.raster = np.squeeze(src.read())
         src.close()
 
-        # raster type is float
-        self.raster = self.raster.astype(np.float)
+        if dtype != rasterio.ubyte:
+            # raster type is float
+            self.raster = self.raster.astype(np.float)
 
         # value bellow min_value are considered incorrect and therefore no_data
         self.raster[self.raster < MIN_ALLOWED_VALUE] = nan
@@ -140,7 +144,7 @@ class Raster(object):
         else:
             self.raster = min_val + (max_val - min_val)*((self.raster/255) - 0.1) / 0.8
 
-        if normalized:
+        if normalized and dtype != rasterio.ubyte:
             # normalizing the whole raster given available data (therefore avoiding no_data)...
             selected_cell = self.raster != nan
             self.raster[selected_cell] = (self.raster[selected_cell] - self.raster[selected_cell].mean()) \
@@ -166,7 +170,7 @@ class Raster(object):
 
         # environmental vector
         if self.size == 1:
-            patch = self.raster[row_num, col_num]
+            patch = self.raster[row_num, col_num].astype(np.float)
             if self.one_hot and not cancel_one_hot:
                 patch = np.array([(patch == i).astype(float) for i in self.unique_values])
             else:
@@ -174,7 +178,8 @@ class Raster(object):
         # environmental tensor
         else:
             half_size = int(self.size/2)
-            patch = self.raster[row_num-half_size:row_num+half_size, col_num - half_size:col_num+half_size]
+            patch = self.raster[row_num-half_size:row_num+half_size,
+                    col_num - half_size:col_num+half_size].astype(np.float)
             if self.one_hot and not cancel_one_hot:
                 patch = np.array([(patch == i).astype(float) for i in self.unique_values])
             else:
