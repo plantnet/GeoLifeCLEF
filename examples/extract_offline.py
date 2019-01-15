@@ -23,6 +23,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     df = pd.read_csv(args.dataset, sep=';', header='infer', quotechar='"', low_memory=False)
+    df = df.dropna(axis=0, how='all')
 
     batch_size = 10000  # number of patch to extract simultaneously
     modulo_disk = 1024  # number of patch per folder
@@ -34,6 +35,9 @@ if __name__ == '__main__':
 
     positions = []
 
+    # exception = ('proxi_eau_fast',)
+    exception = tuple()  # add rasters that don't fit into memory
+
     export_count = 0
 
     for idx, occurrence in enumerate(df.iterrows()):
@@ -44,6 +48,8 @@ if __name__ == '__main__':
         if len(positions) == batch_size or idx == len(df) - 1:
             variables = []
             for i, raster in enumerate(sorted(raster_metadata.keys())):
+                if raster in exception:
+                    continue
                 ext.clean()
                 ext.append(raster, normalized=args.norm)
                 variable = np.stack([ext[p] for p in positions])

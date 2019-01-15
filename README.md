@@ -11,7 +11,9 @@ The rest of this documents presents (1) the data, (2) the python code and the (3
 
 ## 1. Data
 The data are composed of two parts: the environmental rasters and the actual dataset containing all the occurrences.
-This section will describe both.
+This section will describe both. You can check the 
+[Protocol note](https://docs.google.com/document/d/19PF68B30HNSXq6_Rp6-Rd9GzOtGTsnHF_js4SkxqW3g/edit) for more 
+details.
 ### Environmental Rasters
 The rasters are available at the following 
 [URL](http://otmedia.lirmm.fr/LifeCLEF/GeoLifeCLEF2019/). The following variables are
@@ -63,8 +65,25 @@ The dataset is composed in multiple files:
 - PL_trusted.csv
 - noPlant.csv 
 - GLC_2018.csv
+More details about the dataset are given in the protocol note. The dataset contains the following columns:
 
+| Name        | Description           |
+| ------------- |:-------------|
+|X_key|a key for the observation.|
+|date| date of the observation.|
+|session| session ID|
+|Longitude| decimal longitude in the WGS84 coordinate system.|
+|Latitude| decimal latitude in the WGS84 coordinate system.|
+|coordinateuncertaintyinmeters | location uncertainty.|
+|accuracy|  coordinate uncertainty in meters mostly computed by smartphone devices.|
+|project| the plantnet project from which the observation was taken.|
+|FirstResPLv2Score| the confidence score of the automatically identified species.|
+|IdentifStatus||
+|scName| the original data source taxon name of the occurrence |
+|glc19SpId| The GLC19 reference identifier for the species name.|
 
+Notice that the most important fields are Latitude and Longitude in order to extract the environmental patch and 
+glc19SpId which contains the species ID.
 ## 2. Python3
 The file ```environmental_raster_glc.py``` provides to the participant of the GLC19 challenge a mean to extract 
 environmental patches or vectors given the provided rasters. Providing a set of input rasters, it enables the online (in memory) extraction of environmental patches at a given spatial position OR of the offline construction (on disk) of all the patches of a set of spatial positions. 
@@ -189,5 +208,5 @@ optional arguments:
   --normalized NORM  true if patch normalized (False by default)
 ```
 
-## 3. R
-@Christophe
+Notice that some rasters (```proxi_eau_fast```  in particular) require a lots of memory and can be removed from 
+the extraction by using the exception variable (in the ```extract_offline.py``` file). 
