@@ -14,7 +14,7 @@ The data are composed of two parts: the environmental rasters and the actual dat
 This section will describe both.
 ### Environmental Rasters
 The rasters are available at the following 
-[URL](http://google.fr). The following variables are
+[URL](http://otmedia.lirmm.fr/LifeCLEF/GeoLifeCLEF2019/). The following variables are
 available:
 
 | Name        | Description           | Nature  | Values |
@@ -56,7 +56,7 @@ available:
 More details about each raster are available within the archive.
 ### Dataset of Occurrences 
 The dataset itself is available at the following 
-[URL](http://google.fr). The following variables are
+[URL](http://otmedia.lirmm.fr/LifeCLEF/GeoLifeCLEF2019/). The following variables are
 
 The dataset is composed in multiple files:
 - PL_complete.csv
