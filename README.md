@@ -65,25 +65,25 @@ The dataset is composed in multiple files:
 - PL_trusted.csv
 - noPlant.csv 
 - GLC_2018.csv
-More details about the dataset are given in the protocol note. The dataset contains the following columns:
+More details about the dataset are given in the protocol note. The datasets columns include :
 
-| Name        | Description           |
-| ------------- |:-------------|
-|X_key|a key for the observation.|
-|date| date of the observation.|
-|session| session ID|
-|Longitude| decimal longitude in the WGS84 coordinate system.|
-|Latitude| decimal latitude in the WGS84 coordinate system.|
-|coordinateuncertaintyinmeters | location uncertainty.|
-|accuracy|  coordinate uncertainty in meters mostly computed by smartphone devices.|
-|project| the plantnet project from which the observation was taken.|
-|FirstResPLv2Score| the confidence score of the automatically identified species.|
-|IdentifStatus||
-|scName| the original data source taxon name of the occurrence |
-|glc19SpId| The GLC19 reference identifier for the species name.|
+| Name        | Description   | Data source |
+| ------------- |:-------------|-------------|
+|Longitude| decimal longitude in the WGS84 coordinate system.| All |
+|Latitude| decimal latitude in the WGS84 coordinate system.| All |
+|glc19SpId| The GLC19 reference identifier for the species name.| All |
+|scName| the original data source taxon name of the occurrence.| All |
+|coordinateuncertaintyinmeters | location uncertainty.| GBIF |
+|accuracy|  coordinate uncertainty in meters mostly computed by smartphone devices.| PL |
+|date| date of the observation.| PL |
+|eventDate | date of the observation. | GBIF |
+|X_key|a key for the observation.| PL |
+|session| Pl@ntNet session ID | PL |
+|project| the plantnet taxonomic referential to which the original taxon name belong.| PL |
+|FirstResPLv2Score| the confidence score of the automatically identified species.| PL |
 
 Notice that the most important fields are Latitude and Longitude in order to extract the environmental patch and 
-glc19SpId which contains the species ID.
+glc19SpId which contains the species ID. 
 ## 2. Python3
 The file ```environmental_raster_glc.py``` provides to the participant of the GLC19 challenge a mean to extract 
 environmental patches or vectors given the provided rasters. Providing a set of input rasters, it enables the online (in memory) extraction of environmental patches at a given spatial position OR of the offline construction (on disk) of all the patches of a set of spatial positions. 
