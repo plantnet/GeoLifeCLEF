@@ -7,7 +7,7 @@ development of location-based recommendation services (typically on mobile phone
 non-expert nature observers. Last but not least, it might serve educational purposes thanks to biodiversity discovery 
 applications providing functionalities such as contextualized educational pathways.
 
-The rest of this documents presents (1) the data, (2) the python code and the (3) R code.
+The rest of this documents presents (1) the data, and (2) the python code.
 
 ## 1. Data
 The data are composed of two parts: the environmental rasters and the actual dataset containing all the occurrences.
