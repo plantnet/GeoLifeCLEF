@@ -15,8 +15,8 @@ This section will describe both. You can check the
 [Protocol note](https://docs.google.com/document/d/19PF68B30HNSXq6_Rp6-Rd9GzOtGTsnHF_js4SkxqW3g/edit) for more 
 details.
 ### Environmental Rasters
-The rasters are available at the following 
-[URL](http://otmedia.lirmm.fr/LifeCLEF/GeoLifeCLEF2019/). The following variables are
+The rasters are available directly on 
+[CrowdAI](https://www.crowdai.org). The following variables are
 available:
 
 | Name        | Description           | Nature  | Values |
@@ -57,8 +57,8 @@ available:
 
 More details about each raster are available within the archive.
 ### Dataset of Occurrences 
-The dataset itself is available at the following 
-[URL](http://otmedia.lirmm.fr/LifeCLEF/GeoLifeCLEF2019/). The following variables are
+The dataset itself is available directly on 
+[CrowdAI](https://www.crowdai.org). The following variables are
 
 The dataset is composed in multiple files:
 - PL_complete.csv
