@@ -57,8 +57,6 @@ available:
 
 More details about each raster are available within the archive.
 ### Dataset of Occurrences 
-The dataset itself is available directly on 
-[CrowdAI](https://www.crowdai.org). The following variables are
 
 The dataset is composed in multiple files:
 - PL_complete.csv
