@@ -13,7 +13,9 @@ import re
 import os
 import warnings
 import pandas as pd
-import matplotlib.pyplot as plt
+
+from datascience.visu.util.util import plt, get_figure
+from engine.logging.logs import print_debug
 
 MIN_ALLOWED_VALUE = -10000
 EPS = 1
@@ -38,7 +40,7 @@ raster_metadata = {
     'chbio_12': {'min_val': 318.3, 'max_val': 2543.3, 'nan': 317.},
     'chbio_13': {'min_val': 43., 'max_val': 285.5, 'nan': 42.},
     'chbio_14': {'min_val': 3.0, 'max_val': 135.6, 'nan': 2.},
-    'chbio_15': {'min_val': 8.2, 'max_val': 26.5, 'nan': 7.},
+    'chbio_15': {'min_val': 8.2, 'max_val': 57.8, 'nan': 7.},
     'chbio_16': {'min_val': 121.6, 'max_val': 855.6, 'nan': 120.},
     'chbio_17': {'min_val': 19.8, 'max_val': 421.3, 'nan': 19.},
     'chbio_18': {'min_val': 19.8, 'max_val': 851.7, 'nan': 19.},
@@ -141,8 +143,8 @@ class Raster(object):
                     else:
                         self.raster[self.raster == line[1]['storage_8bit']] = line[1][attrib_column]
         # if the file does not exist, then correct values must be reconstructed....
-        else:
-            self.raster = min_val + (max_val - min_val)*((self.raster/255) - 0.1) / 0.8
+        #else:
+            #self.raster = min_val + (max_val - min_val)*((self.raster/255) - 0.1) / 0.8
 
         if normalized and dtype != rasterio.ubyte:
             # normalizing the whole raster given available data (therefore avoiding no_data)...
@@ -217,11 +219,12 @@ class PatchExtractor(object):
     PatchExtractor enables the extraction of an environmental tensor from multiple rasters given a GPS
     position.
     """
-    def __init__(self, root_path, size=64, verbose=False):
+    def __init__(self, root_path, size=64, verbose=False, resolution=1.):
         self.root_path = root_path
         self.size = size
 
         self.verbose = verbose
+        self.resolution = resolution
 
         self.rasters = []
 
@@ -245,22 +248,42 @@ class PatchExtractor(object):
         """
         # you may want to add rasters one by one if specific configuration are required on a per raster
         # basis
-        if self.verbose:
-            print('Adding: '+raster_name)
+        print_debug('Adding: ' + raster_name, end='')
         params = {**raster_metadata[raster_name]}
         for k in kwargs.keys():
             if kwargs[k] != 'default':
                 params[k] = kwargs[k]
-
-        self.rasters.append(Raster(self.root_path + '/' + raster_name, size=self.size, **params))
+        try:
+            r = Raster(self.root_path + '/' + raster_name, size=self.size, **params)
+            self.rasters.append(r)
+            print_debug('')
+        except rasterio.errors.RasterioIOError:
+            print_debug(' (not available...)')
 
     def clean(self):
         """
         Remove all rasters from the extractor.
         """
-        if self.verbose:
-            print('Removing all rasters...')
+
+        print_debug('Removing all rasters...')
         self.rasters = []
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        result = ''
+        for r in self.rasters:
+            result += '-' * 50 + '\n'
+            result += 'title: ' + r.name + '\n'
+            result += '\t x_min: ' + str(r.x_min) + '\n'
+            result += '\t y_min: ' + str(r.y_min) + '\n'
+            result += '\t x_resolution: ' + str(r.x_resolution) + '\n'
+            result += '\t y_resolution: ' + str(r.y_resolution) + '\n'
+            result += '\t n_rows: ' + str(r.n_rows) + '\n'
+            result += '\t n_cols: ' + str(r.n_cols) + '\n'
+
+        return result
 
     def __getitem__(self, item, cancel_one_hot=False):
         """
@@ -276,7 +299,7 @@ class PatchExtractor(object):
         """
         return len(self.rasters)
 
-    def plot(self, item, cancel_one_hot=True, return_fig=False, style='fivethirtyeight'):
+    def plot(self, item, cancel_one_hot=True, return_fig=False, style='fivethirtyeight', nb_cols=5, alpha=1.):
         """
         Plot an environmental tensor (size > 1)...
 
@@ -286,8 +309,9 @@ class PatchExtractor(object):
         :param return_fig: if True, the matplotlib fig will be returned, if False, it will be displayed
         :param style: style of the chart
         """
+
         if self.size > 1:
-            with plt.style.context(style):
+            with plt().style.context(style):
                 metadata = [(r.name,
                              [item[1] - self.size // 2 * r.x_resolution,
                               item[1] + self.size // 2 * r.x_resolution,
@@ -300,20 +324,21 @@ class PatchExtractor(object):
                 patch = self.__getitem__(item, cancel_one_hot)
 
                 # computing number of rows and columns...
-                nb_rows = (patch.shape[0] + 4) // 5
-                nb_cols = 5
+                nb_rows = (patch.shape[0] + (nb_cols-1)) // nb_cols
 
-                fig = plt.figure(figsize=(nb_cols * 5, nb_rows * 3.8))
+                plt('patch', figsize=(nb_cols * 6.4 * self.resolution, nb_rows * 4.8 * self.resolution))
+                fig = get_figure('patch')
                 for k, i in zip(metadata, range(patch.shape[0])):
-                    plt.subplot(nb_rows, nb_cols, i + 1)
-                    plt.title(k[0], fontsize=20)
-                    plt.imshow(patch[i], extent=k[1], aspect='auto')
-                    plt.colorbar()
+                    plt('patch').subplot(nb_rows, nb_cols, i + 1)
+                    plt('patch').title(k[0], fontsize=20)
+                    plt('patch').imshow(patch[i], extent=k[1], aspect='auto')
+                    plt('patch').colorbar()
                 fig.tight_layout()
+                fig.patch.set_alpha(alpha)
             if return_fig:
                 return fig
             else:
                 fig.show()
-                plt.close(fig)
+                plt('patch').close(fig)
         else:
             raise ValueError('Plot works only for tensors: size must be > 1...')
