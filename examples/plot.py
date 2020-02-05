@@ -1,6 +1,6 @@
 from environmental_raster_glc import PatchExtractor
 
-extractor = PatchExtractor('/home/data/rasters_GLC20/archive/soilgrids/', size=256, verbose=True)
+extractor = PatchExtractor('/home/data/rasters_GLC20/soilgrids/', size=256, verbose=True)
 
 # extractor.append('bdticm')
 # extractor.append('text')
