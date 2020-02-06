@@ -1,4 +1,4 @@
-# GeoLifeCLEF 2019
+# GeoLifeCLEF 2020
 Automatically predicting the list of species that are the most likely to be observed at a given location is useful for 
 many scenarios in biodiversity informatics. First of all, it could improve species identification processes and tools 
 by reducing the list of candidate species that are observable at a given location (be they automated, semi-automated 
