@@ -17,33 +17,33 @@ import matplotlib.pyplot as plt
 
 # metadata used to setup some rasters
 raster_metadata = {
-    'bdticm': {'min_val': 0, 'max_val': 112467, 'nan': -2147483647, 'new_nan': -1},
-    'bldfie': {'min_val': 93, 'max_val': 1828, 'nan': -32768, 'new_nan': 92},
-    'cecsol': {'min_val': 0, 'max_val': 385, 'nan': -32768, 'new_nan': -1},
-    'clyppt': {'min_val': 0, 'max_val': 81, 'nan': -32768, 'new_nan': -1},
-    'orcdrc': {'min_val': 0, 'max_val': 524, 'nan': -32768, 'new_nan': -1},
-    'phihox': {'min_val': 32, 'max_val': 98, 'nan': -32768, 'new_nan': 31},
-    'sltppt': {'min_val': 0, 'max_val': 86, 'nan': -32768, 'new_nan': -1},
-    'sndppt': {'min_val': 0, 'max_val': 99, 'nan': -32768, 'new_nan': -1},
-    'bio_1': {'min_val': -116, 'max_val': 259, 'nan': -2147483647, 'new_nan': -117},
-    'bio_2': {'min_val': -53, 'max_val': 361, 'nan': -2147483647, 'new_nan': -54},
-    'bio_3': {'min_val': 19, 'max_val': 69, 'nan': -2147483647, 'new_nan': 18},
-    'bio_4': {'min_val': 1624, 'max_val': 13302, 'nan': -2147483647, 'new_nan': 1623},
-    'bio_5': {'min_val': -25, 'max_val': 457, 'nan': -2147483647, 'new_nan': -26},
-    'bio_6': {'min_val': -276, 'max_val': 183, 'nan': -2147483647, 'new_nan': -277},
-    'bio_7': {'min_val': 117, 'max_val': 515, 'nan': -2147483647, 'new_nan': 116},
-    'bio_8': {'min_val': -169, 'max_val': 332, 'nan': -2147483647, 'new_nan': -170},
-    'bio_9': {'min_val': -181, 'max_val': 331, 'nan': -2147483647, 'new_nan': -182},
-    'bio_10': {'min_val': -53, 'max_val': 361, 'nan': -2147483647, 'new_nan': -54},
-    'bio_11': {'min_val': -186, 'max_val': 220, 'nan': -2147483647, 'new_nan': -187},
-    'bio_12': {'min_val': -35, 'max_val': 3385, 'nan': -2147483647, 'new_nan': -36},
-    'bio_13': {'min_val': 7, 'max_val': 570, 'nan': -2147483647, 'new_nan': 6},
-    'bio_14': {'min_val': 0, 'max_val': 184, 'nan': -2147483647, 'new_nan': -1},
-    'bio_15': {'min_val': 5, 'max_val': 140, 'nan': -2147483647, 'new_nan': 4},
-    'bio_16': {'min_val': 19, 'max_val': 1546, 'nan': -2147483647, 'new_nan': 18},
-    'bio_17': {'min_val': 0, 'max_val': 612, 'nan': -2147483647, 'new_nan': -1},
-    'bio_18': {'min_val': 1, 'max_val': 777, 'nan': -2147483647, 'new_nan': 0},
-    'bio_19': {'min_val': 5, 'max_val': 1485, 'nan': -2147483647, 'new_nan': 4},
+    'bdticm': {'min_val': 0, 'max_val': 112467, 'nan': -2147483647, 'new_nan': -1, 'mu': 2579, 'sigma': 3058},
+    'bldfie': {'min_val': 93, 'max_val': 1828, 'nan': -32768, 'new_nan': 92, 'mu': 1372, 'sigma': 137},
+    'cecsol': {'min_val': 0, 'max_val': 385, 'nan': -32768, 'new_nan': -1, 'mu': 20, 'sigma': 8},
+    'clyppt': {'min_val': 0, 'max_val': 81, 'nan': -32768, 'new_nan': -1, 'mu': 22, 'sigma': 8},
+    'orcdrc': {'min_val': 0, 'max_val': 524, 'nan': -32768, 'new_nan': -1, 'mu': 24, 'sigma': 21},
+    'phihox': {'min_val': 32, 'max_val': 98, 'nan': -32768, 'new_nan': 31, 'mu': 64, 'sigma': 11},
+    'sltppt': {'min_val': 0, 'max_val': 86, 'nan': -32768, 'new_nan': -1, 'mu': 37, 'sigma': 11},
+    'sndppt': {'min_val': 0, 'max_val': 99, 'nan': -32768, 'new_nan': -1, 'mu': 42, 'sigma': 14},
+    'bio_1': {'min_val': -116, 'max_val': 259, 'nan': -2147483647, 'new_nan': -117, 'mu': 101, 'sigma': 58},
+    'bio_2': {'min_val': -53, 'max_val': 361, 'nan': -2147483647, 'new_nan': -54, 'mu': 131, 'sigma': 28},
+    'bio_3': {'min_val': 19, 'max_val': 69, 'nan': -2147483647, 'new_nan': 18, 'mu': 36, 'sigma': 8},
+    'bio_4': {'min_val': 1624, 'max_val': 13302, 'nan': -2147483647, 'new_nan': 1623, 'mu': 8267, 'sigma': 2152},
+    'bio_5': {'min_val': -25, 'max_val': 457, 'nan': -2147483647, 'new_nan': -26, 'mu': 289, 'sigma': 48},
+    'bio_6': {'min_val': -276, 'max_val': 183, 'nan': -2147483647, 'new_nan': -277, 'mu': -78, 'sigma': 83},
+    'bio_7': {'min_val': 117, 'max_val': 515, 'nan': -2147483647, 'new_nan': 116, 'mu': 367, 'sigma': 72},
+    'bio_8': {'min_val': -169, 'max_val': 332, 'nan': -2147483647, 'new_nan': -170, 'mu': 149, 'sigma': 82},
+    'bio_9': {'min_val': -181, 'max_val': 331, 'nan': -2147483647, 'new_nan': -182, 'mu': 54, 'sigma': 114},
+    'bio_10': {'min_val': -53, 'max_val': 361, 'nan': -2147483647, 'new_nan': -54, 'mu': 205, 'sigma': 47},
+    'bio_11': {'min_val': -186, 'max_val': 220, 'nan': -2147483647, 'new_nan': -187, 'mu': -7, 'sigma': 80},
+    'bio_12': {'min_val': -35, 'max_val': 3385, 'nan': -2147483647, 'new_nan': -36, 'mu': 746, 'sigma': 383},
+    'bio_13': {'min_val': 7, 'max_val': 570, 'nan': -2147483647, 'new_nan': 6, 'mu': 98, 'sigma': 47},
+    'bio_14': {'min_val': 0, 'max_val': 184, 'nan': -2147483647, 'new_nan': -1, 'mu': 34, 'sigma': 26},
+    'bio_15': {'min_val': 5, 'max_val': 140, 'nan': -2147483647, 'new_nan': 4, 'mu': 38, 'sigma': 23},
+    'bio_16': {'min_val': 19, 'max_val': 1546, 'nan': -2147483647, 'new_nan': 18, 'mu': 265, 'sigma': 132},
+    'bio_17': {'min_val': 0, 'max_val': 612, 'nan': -2147483647, 'new_nan': -1, 'mu': 117, 'sigma': 84},
+    'bio_18': {'min_val': 1, 'max_val': 777, 'nan': -2147483647, 'new_nan': 0, 'mu': 213, 'sigma': 107},
+    'bio_19': {'min_val': 5, 'max_val': 1485, 'nan': -2147483647, 'new_nan': 4, 'mu': 163, 'sigma': 137},
 }
 
 
@@ -51,7 +51,8 @@ class Raster(object):
     """
     Raster is dedicated to a single raster management...
     """
-    def __init__(self, path, country='FR', normalized=False, transform=None, size=256, nan=None, new_nan=None, **kw):
+    def __init__(self, path, country='FR', normalized=False, transform=None, size=256, nan=None, new_nan=None, mu=0,
+                 sigma=1, **kw):
         """
         Loads a tiff file describing an environmental raster into a numpy array and...
 
@@ -63,7 +64,8 @@ class Raster(object):
         :param size: the size of a patch (size x size)
         """
         self.path = path
-        self.no_data = nan
+        self.no_data = new_nan
+
         self.normalized = normalized
         self.transform = transform
         self.size = size
@@ -108,14 +110,13 @@ class Raster(object):
         src.close()
 
         # value bellow min_value are considered incorrect and therefore no_data
-        self.raster[self.raster == self.no_data] = new_nan
+        self.raster[self.raster == nan] = new_nan
         self.raster[np.isnan(self.raster)] = new_nan
 
         if normalized:
             # normalizing the whole raster given available data (therefore avoiding no_data)...
             selected_cell = self.raster != nan
-            self.raster[selected_cell] = (self.raster[selected_cell] - self.raster[selected_cell].mean()) \
-                / self.raster[selected_cell].std()
+            self.raster[selected_cell] = (self.raster[selected_cell] - mu) / sigma
 
         # setting the shape of the raster
         self.shape = self.raster.shape
