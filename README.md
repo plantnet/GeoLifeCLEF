@@ -16,44 +16,39 @@ This section will describe both. You can check the
 details.
 ### Environmental Rasters
 The rasters are available directly on 
-[CrowdAI](https://www.crowdai.org). The following variables are
+[AICrowd](https://www.aicrowd.com). The following variables are
 available:
 
 | Name        | Description           | Nature  | Values |
 | ------------- |:-------------| :-----:|-----:|
-| CHBIO_1      | Annual Mean Temp. (mean of monthly) | quanti. |[-10.7,18.4]|
-| CHBIO_2      | Max-temp - min-temp | quanti. |[7.8, 21.0]|
-| CHBIO_3      | Isothermality (100*2/7) | quanti. |[41.1,60.0]|
-| CHBIO_4      | Temp. seasonality (std.dev*100) | quanti. |[302.7, 777.8]|
-| CHBIO_5      | Max Temp of warmest month | quanti. |[6.1,36.6]|
-| CHBIO_6      | Min Temp of coldest month | quanti. |[-28.3,5.4]|
-| CHBIO_7      | Temp. annual range | quanti. |[16.7,42.0]|
-| CHBIO_8      | Mean temp. of wettest quarter | quanti. |[-14.2,23.0]|
-| CHBIO_9      | Mean temp. of driest quarter | quanti. |[-17.7,26.5]|
-| CHBIO_10      | Mean temp. of warmest quarter | quanti. |[-2.8, 26.5]|
-| CHBIO_11      | Mean temp. of coldest quarter | quanti. |[-17.7, 11.8]|
-| CHBIO_12      | Annual precipitations | quanti. |[318.3,2543.3]|
-| CHBIO_13      | Precipitations of wettest month | quanti. |[43.0,285.5]| 
-| CHBIO_14      | Precipitations of driest month | quanti. |[3.0,135.6]|
-| CHBIO_15      | Precipitations seasonality (coef. of var.) | quanti. |[8.2,26.5]|
-| CHBIO_16      | Precipitations of wettest quarter | quanti. |[121.6,855.6]|
-| CHBIO_17      | Precipitations of driest quarter | quanti. |[19.8,421.3]|
-| CHBIO_18      | Precipitations of warmest quarter | quanti. |[198,851.7]|
-| CHBIO_19      | Precipitations of coldest quarter | quanti. |[60.5,520.4]|
-| etp      | Potential evapo transpiration | quanti. |[133,1176]|
-| alti      | Elevation | quanti. |[-188,4672]|
-| awc_top      | Topsoil available water capacity | ordinal |{0,120,165,210}|
-| bs_top      | Base saturation of the topsoil | ordinal |{35,62,85}|
-| cec_top      | Topsoil cation exchange capacity | ordinal |{7,22,50}|
-| crusting      | Soil crusting class | ordinal | [0,5] |
-| dgh      | Depth to a gleyed horizon | ordinal |{20,60,140}|
-| dimp      | Depth to an impermeable layer | ordinal |{60,100}|
-| erodi      | Soil erodibility class | ordinal |[0,5]|
-| oc_top      | Topsoil organic carbon content | ordinal |{1,2,4,8}|
-| pd_top      | Topsoil packing density | ordinal |{1,2}|
-| text      | Dominant surface textural class| ordinal |[0,5]|
-| proxi_eau_fast      | <50 meters to fresh water| boolean |{0,1}|
-| clc      | Ground occupation | categorial |[1,48]|
+| BIO_1      | Annual Mean Temp. (mean of monthly) | quanti. |[-116, 269]|
+| BIO_2      | Max-temp - min-temp | quanti. |[-53, 361]|
+| BIO_3      | Isothermality (100*2/7) | quanti. |[19, 69]|
+| BIO_4      | Temp. seasonality (std.dev*100) | quanti. |[1624, 13302]|
+| BIO_5      | Max Temp of warmest month | quanti. |[-25, 457]|
+| BIO_6      | Min Temp of coldest month | quanti. |[-276, 183]|
+| BIO_7      | Temp. annual range | quanti. |[117, 515]|
+| BIO_8      | Mean temp. of wettest quarter | quanti. |[-169, 332]|
+| BIO_9      | Mean temp. of driest quarter | quanti. |[-181, 331]|
+| BIO_10      | Mean temp. of warmest quarter | quanti. |[-53, 361]|
+| BIO_11      | Mean temp. of coldest quarter | quanti. |[-186, 220]|
+| BIO_12      | Annual precipitations | quanti. |[-35, 3385]|
+| BIO_13      | Precipitations of wettest month | quanti. |[7, 570]| 
+| BIO_14      | Precipitations of driest month | quanti. |[0, 184]|
+| BIO_15      | Precipitations seasonality (coef. of var.) | quanti. |[5, 140]|
+| BIO_16      | Precipitations of wettest quarter | quanti. |[19, 1546]|
+| BIO_17      | Precipitations of driest quarter | quanti. |[0, 612]|
+| BIO_18      | Precipitations of warmest quarter | quanti. |[1, 777]|
+| BIO_19      | Precipitations of coldest quarter | quanti. |[5, 1485]|
+| BDTICM      | Absolute depth to bedrock in cm | quanti. |[0, 112467]|
+| BLDFIE      | Bulk density in kg/m3 at 15cm depth | quanti. |[93, 1829]|
+| CECSOL      | Cation exchange capacity of soil in cmolc/kg 15cm depth | quanti. |[0, 385]|
+| CLYPPT      | Clay (0-2 micro meter) mass fraction at 15cm depth | quanti. |[0, 81]|
+| ORCDRC      | Soil organic carbon content (fine earth fraction) in g per kg 15cm depth | quanti. |[0, 524]|
+| PHIHOX      | Ph x 10 in H20 15cm depth  | quanti. |[32, 98]|
+| SLTPPT      | Silt mass fraction at 15cm depth | quanti. |[0, 86]|
+| SNDPPT      | Sand mass fraction at 15cm depth | quanti. |[0, 99]|
+
 
 More details about each raster are available within the archive.
 ### Dataset of Occurrences 
