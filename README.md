@@ -10,7 +10,7 @@ applications providing functionalities such as contextualized educational pathwa
 The rest of this documents presents (1) the data, and (2) the python code.
 
 ## 1. Data
-The data are composed of two parts: the environmental rasters and the actual dataset containing all the occurrences. All the data is downloadable on the [CrowdAI page](https://www.crowdai.org/challenges/lifeclef-2019-geo).
+The data are composed of two parts: the environmental rasters and the actual dataset containing all the occurrences. All the data is downloadable on the [AIcrowd page](https://www.aicrowd.com/challenges/lifeclef-2020-geo).
 This section will describe both. You can check the 
 [Protocol note](https://docs.google.com/document/d/19PF68B30HNSXq6_Rp6-Rd9GzOtGTsnHF_js4SkxqW3g/edit) for more 
 details.
