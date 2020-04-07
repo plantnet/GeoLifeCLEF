@@ -172,7 +172,7 @@ initially set to have a one hot encoding as a single patch. In the previous imag
 a one hot encoding representation but is plotted as a single patch.
 
 In addition, Land cover, altitude, near-IR and RGB are provided:
-![Npy Patchs](https://raw.githubusercontent.com/maximiliense/GLC/master/patchs_2.jpg)
+![Npy Patchs](https://raw.githubusercontent.com/maximiliense/GLC/master/patchs_2.jpeg)
 
 ### Command line use
 
