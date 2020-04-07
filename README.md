@@ -165,14 +165,14 @@ extractor.plot((43.61, 3.88))
 # accept an optional style parameter to modify the style temporarily
 ```
 Resulting in images of the following type:
-![Rasters Patchs](https://raw.githubusercontent.com/maximiliense/GLC19/master/patchs.jpg)
+![Rasters Patchs](https://raw.githubusercontent.com/maximiliense/GLC/master/patchs.jpg)
 
 The plot method accept a ```cancel_one_hot``` parameter which value is True by default thus representing a variable 
 initially set to have a one hot encoding as a single patch. In the previous image, ```clc``` is set to have
 a one hot encoding representation but is plotted as a single patch.
 
 In addition, Land cover, altitude, near-IR and RGB are provided:
-![Npy Patchs](https://raw.githubusercontent.com/maximiliense/GLC19/master/patchs_2.jpg)
+![Npy Patchs](https://raw.githubusercontent.com/maximiliense/GLC/master/patchs_2.jpg)
 
 ### Command line use
 
