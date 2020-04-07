@@ -39,7 +39,7 @@ The metadata columns include :
 |GBIF_species_name| The GBIF reference name for the species.|
 ### High resolution tensors
 
-The data contains also a tensor of high spatial resolution variables for each occurrences. The variables are the satelite images (in 4 chanels: Red, Green, Blue, Near Infra-Red), the altitude and the land cover. All the details on the extraction of these tensors and the manipulation of their original data sources are given in the [Protocol note](https://docs.google.com/document/d/19PF68B30HNSXq6_Rp6-Rd9GzOtGTsnHF_js4SkxqW3g/edit). Tensors are stored given the occurrences ids. The tensor of an occurrence with the id XXXXXABCD is at the location /CD/AB/XXXXXABCD.npy and /CD/AB/XXXXXABCD_alti.npy
+The data contains also a tensor of high spatial resolution variables for each occurrences. The variables are the satelite images (in 4 chanels: Red, Green, Blue, Near Infra-Red), the altitude and the land cover. All the details on the extraction of these tensors and the manipulation of their original data sources are given in the Protocol note. Tensors are stored given the occurrences ids. The tensor of an occurrence with the id XXXXXABCD is at the location /CD/AB/XXXXXABCD.npy and /CD/AB/XXXXXABCD_alti.npy
 ### Environmental Rasters
 The rasters are available directly on 
 [AICrowd](https://www.aicrowd.com). The following variables are
