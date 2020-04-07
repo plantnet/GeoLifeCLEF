@@ -61,20 +61,12 @@ The dataset is composed in multiple files:
 
 More details about the dataset are given in the protocol note. The datasets columns include :
 
-| Name        | Description   | Data source |
-| ------------- |:-------------|-------------|
-|Longitude| decimal longitude in the WGS84 coordinate system.| All |
-|Latitude| decimal latitude in the WGS84 coordinate system.| All |
-|glc19SpId| The GLC19 reference identifier for the species name.| All |
-|scName| the original data source taxon name of the occurrence.| All |
-|coordinateuncertaintyinmeters | location uncertainty.| GBIF |
-|accuracy|  coordinate uncertainty in meters mostly computed by smartphone devices.| PL |
-|date| date of the observation.| PL |
-|eventDate | date of the observation. | GBIF |
-|X_key|a key for the observation.| PL |
-|session| Pl@ntNet session ID | PL |
-|project| the plantnet taxonomic referential to which the original taxon name belong.| PL |
-|FirstResPLv2Score| the confidence score of the automatically identified species.| PL |
+| Name        | Description   |
+| ------------- |:-------------|
+|id| The GLC20 reference identifier for the occurrence.|
+|lat| Decimal latitude in the WGS84 coordinate system.|
+|lon| Decimal longitude in the WGS84 coordinate system.|
+|species_id| The GLC20 reference identifier for the species.|
 
 Notice that the most important fields are Latitude and Longitude in order to extract the environmental patch and 
 glc19SpId which contains the species ID. 
