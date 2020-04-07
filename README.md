@@ -54,10 +54,11 @@ More details about each raster are available within the archive.
 ### Dataset of Occurrences 
 
 The dataset is composed in multiple files:
-- PL_complete.csv
-- PL_trusted.csv
-- noPlant.csv 
-- GLC_2018.csv
+- occurrences_fr_train.csv
+- occurrences_fr_test.csv
+- occurrences_us_train.csv
+- occurrences_us_test.csv
+- species_metadata.csv
 
 More details about the dataset are given in the protocol note. The datasets columns include :
 
