@@ -167,41 +167,7 @@ a one hot encoding representation but is plotted as a single patch.
 In addition, Land cover, altitude, near-IR and RGB are provided:
 ![Npy Patchs](https://raw.githubusercontent.com/maximiliense/GLC/master/patchs_2.jpeg)
 
-### Command line use
+### Examples
 
-Using the online extraction of patches is fast but requires a significant amount of memory to store all rasters. So, for those who would rather
-export the patches on disk, an additional functionality is provided.
+Three examples files are given.
 
-The patch corresponding to the csv dataset will be extracted using the following command:
-``` 
-python3.7 extract_offline.py rasters_directory dataset.csv destination_directory
-````
-
-The destination_directory will be created if it does not exist yet. 
-Its content might be erased if two files have the same name.
-
-The extractor code has been conceived for low memory usage but might be slower in that sense.
-
-Notice that the patch will be exported in numpy format. R library ```RcppCNPy``` enables to read
-numpy format.
-
-Help command returns:
-```
-usage: environmental_raster_glc.py [-h] [--size SIZE] [--normalized NORM]
-                                   rasters dataset destination
-
-extract environmental patches to disk
-
-positional arguments:
-  rasters            the path to the raster directory
-  dataset            the dataset in CSV format
-  destination        The directory where the patches will be exported
-
-optional arguments:
-  -h, --help         show this help message and exit
-  --size SIZE        size of the final patch (default : 64)
-  --normalized NORM  true if patch normalized (False by default)
-```
-
-Notice that some rasters (```proxi_eau_fast```  in particular) require a lots of memory and can be removed from 
-the extraction by using the exception variable (in the ```extract_offline.py``` file). 
