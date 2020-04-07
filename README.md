@@ -10,8 +10,7 @@ applications providing functionalities such as contextualized educational pathwa
 The rest of this documents presents (1) the data, and (2) the python code.
 
 ## 1. Data
-The data are composed of two parts: the environmental rasters and the actual dataset containing all the occurrences. All the data is downloadable on the [AIcrowd page](https://www.aicrowd.com/challenges/lifeclef-2020-geo).
-This section will describe both.
+The data are composed of three parts: occurrences, high resolution tensors and environmental rasters. All the data is downloadable on the [AIcrowd page](https://www.aicrowd.com/challenges/lifeclef-2020-geo).
 ### Dataset of Occurrences 
 
 The dataset is composed in multiple files:
