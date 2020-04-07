@@ -11,9 +11,35 @@ The rest of this documents presents (1) the data, and (2) the python code.
 
 ## 1. Data
 The data are composed of two parts: the environmental rasters and the actual dataset containing all the occurrences. All the data is downloadable on the [AIcrowd page](https://www.aicrowd.com/challenges/lifeclef-2020-geo).
-This section will describe both. You can check the 
-[Protocol note](https://docs.google.com/document/d/19PF68B30HNSXq6_Rp6-Rd9GzOtGTsnHF_js4SkxqW3g/edit) for more 
-details.
+This section will describe both.
+### Dataset of Occurrences 
+
+The dataset is composed in multiple files:
+- occurrences_fr_train.csv
+- occurrences_fr_test.csv
+- occurrences_us_train.csv
+- occurrences_us_test.csv
+- species_metadata.csv
+
+More details about the dataset are given in the protocol note. The datasets columns include :
+
+| Name        | Description   |
+| ------------- |:-------------|
+|id| The GLC20 reference identifier for the occurrence.|
+|lat| Decimal latitude in the WGS84 coordinate system.|
+|lon| Decimal longitude in the WGS84 coordinate system.|
+|species_id| The GLC20 reference identifier for the species.|
+
+The metadata columns include :
+
+| Name        | Description   |
+| ------------- |:-------------|
+|species_id| The GLC20 reference identifier for the species.|
+|GBIF_species_id| The GBIF reference identifier for the species.|
+|GBIF_species_name| The GBIF reference name for the species.|
+### High resolution tensors
+
+The data contains also a tensor of high spatial resolution variables for each occurrences. The variables are the satelite images (in 4 chanels: Red, Green, Blue, Near Infra-Red), the altitude and the land cover. All the details on the extraction of these tensors and the manipulation of their original data sources are given in the [Protocol note](https://docs.google.com/document/d/19PF68B30HNSXq6_Rp6-Rd9GzOtGTsnHF_js4SkxqW3g/edit). Tensors are stored given the occurrences ids. The tensor of an occurrence with the id XXXXXABCD is at the location /CD/AB/XXXXXABCD.npy and /CD/AB/XXXXXABCD_alti.npy
 ### Environmental Rasters
 The rasters are available directly on 
 [AICrowd](https://www.aicrowd.com). The following variables are
@@ -51,38 +77,6 @@ available:
 
 
 More details about each raster are available within the archive.
-### Dataset of Occurrences 
-
-The dataset is composed in multiple files:
-- PL_complete.csv
-- PL_trusted.csv
-- noPlant.csv 
-- GLC_2018.csv
-
-More details about the dataset are given in the protocol note. The datasets columns include :
-
-| Name        | Description   | Data source |
-| ------------- |:-------------|-------------|
-|Longitude| decimal longitude in the WGS84 coordinate system.| All |
-|Latitude| decimal latitude in the WGS84 coordinate system.| All |
-|glc19SpId| The GLC19 reference identifier for the species name.| All |
-|scName| the original data source taxon name of the occurrence.| All |
-|coordinateuncertaintyinmeters | location uncertainty.| GBIF |
-|accuracy|  coordinate uncertainty in meters mostly computed by smartphone devices.| PL |
-|date| date of the observation.| PL |
-|eventDate | date of the observation. | GBIF |
-|X_key|a key for the observation.| PL |
-|session| Pl@ntNet session ID | PL |
-|project| the plantnet taxonomic referential to which the original taxon name belong.| PL |
-|FirstResPLv2Score| the confidence score of the automatically identified species.| PL |
-
-Notice that the most important fields are Latitude and Longitude in order to extract the environmental patch and 
-glc19SpId which contains the species ID. 
-
-### High resolution tensors
-
-The data contains also a tensor of high spatial resolution variables for each occurrences. The variables are the satelite images (in 4 chanels: Red, Green, Blue, Near Infra-Red), the altitude and the land cover. All the details on the extraction of these tensors and the manipulation of their original data sources are given in the [Protocol note](https://docs.google.com/document/d/19PF68B30HNSXq6_Rp6-Rd9GzOtGTsnHF_js4SkxqW3g/edit). Tensors are stored given the occurrences ids. The tensor of an occurrence with the id XXXXXABCD is at the location /CD/AB/XXXXXABCD.npy
-
 ## 2. Python3
 The file ```environmental_raster_glc.py``` provides to the participant of the GLC19 challenge a mean to extract 
 environmental patches or vectors given the provided rasters. Providing a set of input rasters, it enables the online (in memory) extraction of environmental patches at a given spatial position OR of the offline construction (on disk) of all the patches of a set of spatial positions. 
@@ -165,14 +159,14 @@ extractor.plot((43.61, 3.88))
 # accept an optional style parameter to modify the style temporarily
 ```
 Resulting in images of the following type:
-![Rasters Patchs](https://raw.githubusercontent.com/maximiliense/GLC19/master/patchs.jpg)
+![Rasters Patchs](https://raw.githubusercontent.com/maximiliense/GLC/master/patchs.jpg)
 
 The plot method accept a ```cancel_one_hot``` parameter which value is True by default thus representing a variable 
 initially set to have a one hot encoding as a single patch. In the previous image, ```clc``` is set to have
 a one hot encoding representation but is plotted as a single patch.
 
 In addition, Land cover, altitude, near-IR and RGB are provided:
-![Npy Patchs](https://raw.githubusercontent.com/maximiliense/GLC19/master/patchs_2.jpg)
+![Npy Patchs](https://raw.githubusercontent.com/maximiliense/GLC/master/patchs_2.jpeg)
 
 ### Command line use
 
