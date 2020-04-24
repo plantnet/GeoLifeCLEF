@@ -65,10 +65,11 @@ class DatasetGLC20(Dataset):
         rgb_ir_lc = np.load(path_rgb_ir_lc).transpose((2, 0, 1))
 
         # transforming landcover in one hot encoding
-        lc = rgb_ir_lc[4:5]
-        lc_reshaped = lc.reshape((lc.shape[1] * lc.shape[2],))
-        lc_one_hot = self.one_hot[lc_reshaped]
-        lc_one_hot = lc_one_hot.reshape((self.one_hot_size, lc.shape[1], lc.shape[2]))
+        lc = rgb_ir_lc[4]
+        lc_one_hot = np.zeros((self.one_hot_size,lc.shape[0], lc.shape[1]))
+        row_idx = np.arange(lc.shape[0]).reshape(lc.shape[0], 1)
+        col_idx = np.tile(np.arange(lc.shape[1]), (lc.shape[0], 1))
+        lc_one_hot[lc, row_idx, col_idx] = 1
 
         # concatenating all patches
         if tensor is not None:
