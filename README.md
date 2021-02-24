@@ -119,18 +119,17 @@ Attention, if size is too big, some patches from the dataset will be smaller due
 
 If size equals 1, then the extractor will return an environmental vector instead of the environmental tensor. 
 
-Once the extractor is available, the rasters can be added. Two strategies are available : either adding all the rasters
- at once, or a one by one approach where specific transformation can be specified and some rasters avoided.
-
+Once the extractor is available, the rasters can be added. Two strategies are available : either adding all the rasters at once, or a one by one approach where specific transformation can be specified and some rasters avoided.
 ```python
-# adding a single raster
-extractor.append('clc', nan=0, normalized=True, transform=some_user_defined_function)
+# adding all the raster at root_path
+extractor.add_all(new_nan=0, normalized=True, transform=some_user_defined_function)
 ```
 or
 ```python
-# adding all the raster at root_path
-extractor.add_all(nan=0, normalized=True, transform=some_user_defined_function)
+# adding a single raster
+extractor.append('clc', new_nan=0, normalized=True, transform=some_user_defined_function)
 ```
+
 In addition, some rasters are preferably used through a one hot encoding representation 
 thus increasing the depth of the environmental tensor. The global parameter ```raster_metadata```
 enables to set some of these properties on a per raster basis.
