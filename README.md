@@ -122,12 +122,12 @@ If size equals 1, then the extractor will return an environmental vector instead
 Once the extractor is available, the rasters can be added. Two strategies are available : either adding all the rasters at once, or a one by one approach where specific transformation can be specified and some rasters avoided.
 ```python
 # adding all the raster at root_path
-extractor.add_all(new_nan=0, normalized=True, transform=some_user_defined_function)
+extractor.add_all(nan=0, normalized=True, transform=some_user_defined_function)
 ```
 or
 ```python
 # adding a single raster
-extractor.append('clc', new_nan=0, normalized=True, transform=some_user_defined_function)
+extractor.append('bio_1', nan=0, normalized=True, transform=some_user_defined_function)
 ```
 
 In addition, some rasters are preferably used through a one hot encoding representation 
@@ -153,8 +153,8 @@ a one hot encoding representation actually correspond to a deeper representation
 The extractor also enables to plot a specific patch:
 
 ```python
-extractor.plot((43.61, 3.88))
-# accept an optional style parameter to modify the style temporarily
+fig = plt.figure()
+extractor.plot((43.61, 3.88), fig=fig)
 ```
 Resulting in images of the following type:
 ![Rasters Patchs](https://raw.githubusercontent.com/maximiliense/GLC/master/patchs.jpg)

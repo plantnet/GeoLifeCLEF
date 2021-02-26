@@ -7,6 +7,7 @@
 "   Description: The code to extract environmental tensors and environmental vectors given some environmental rasters.
 "
 """
+import warnings
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -16,33 +17,33 @@ import rasterio
 
 # metadata used to setup some rasters
 raster_metadata = {
-    'bio_1': {'min_val': -116, 'max_val': 259, 'nan': -2147483647, 'new_nan': -117, 'mu': 101, 'sigma': 58},
-    'bio_2': {'min_val': -53, 'max_val': 361, 'nan': -2147483647, 'new_nan': -54, 'mu': 131, 'sigma': 28},
-    'bio_3': {'min_val': 19, 'max_val': 69, 'nan': -2147483647, 'new_nan': 18, 'mu': 36, 'sigma': 8},
-    'bio_4': {'min_val': 1624, 'max_val': 13302, 'nan': -2147483647, 'new_nan': 1623, 'mu': 8267, 'sigma': 2152},
-    'bio_5': {'min_val': -25, 'max_val': 457, 'nan': -2147483647, 'new_nan': -26, 'mu': 289, 'sigma': 48},
-    'bio_6': {'min_val': -276, 'max_val': 183, 'nan': -2147483647, 'new_nan': -277, 'mu': -78, 'sigma': 83},
-    'bio_7': {'min_val': 117, 'max_val': 515, 'nan': -2147483647, 'new_nan': 116, 'mu': 367, 'sigma': 72},
-    'bio_8': {'min_val': -169, 'max_val': 332, 'nan': -2147483647, 'new_nan': -170, 'mu': 149, 'sigma': 82},
-    'bio_9': {'min_val': -181, 'max_val': 331, 'nan': -2147483647, 'new_nan': -182, 'mu': 54, 'sigma': 114},
-    'bio_10': {'min_val': -53, 'max_val': 361, 'nan': -2147483647, 'new_nan': -54, 'mu': 205, 'sigma': 47},
-    'bio_11': {'min_val': -186, 'max_val': 220, 'nan': -2147483647, 'new_nan': -187, 'mu': -7, 'sigma': 80},
-    'bio_12': {'min_val': -35, 'max_val': 3385, 'nan': -2147483647, 'new_nan': -36, 'mu': 746, 'sigma': 383},
-    'bio_13': {'min_val': 7, 'max_val': 570, 'nan': -2147483647, 'new_nan': 6, 'mu': 98, 'sigma': 47},
-    'bio_14': {'min_val': 0, 'max_val': 184, 'nan': -2147483647, 'new_nan': -1, 'mu': 34, 'sigma': 26},
-    'bio_15': {'min_val': 5, 'max_val': 140, 'nan': -2147483647, 'new_nan': 4, 'mu': 38, 'sigma': 23},
-    'bio_16': {'min_val': 19, 'max_val': 1546, 'nan': -2147483647, 'new_nan': 18, 'mu': 265, 'sigma': 132},
-    'bio_17': {'min_val': 0, 'max_val': 612, 'nan': -2147483647, 'new_nan': -1, 'mu': 117, 'sigma': 84},
-    'bio_18': {'min_val': 1, 'max_val': 777, 'nan': -2147483647, 'new_nan': 0, 'mu': 213, 'sigma': 107},
-    'bio_19': {'min_val': 5, 'max_val': 1485, 'nan': -2147483647, 'new_nan': 4, 'mu': 163, 'sigma': 137},
-    'bdticm': {'min_val': 0, 'max_val': 112467, 'nan': -2147483647, 'new_nan': -1, 'mu': 2579, 'sigma': 3058},
-    'bldfie': {'min_val': 93, 'max_val': 1828, 'nan': -32768, 'new_nan': 92, 'mu': 1372, 'sigma': 137},
-    'cecsol': {'min_val': 0, 'max_val': 385, 'nan': -32768, 'new_nan': -1, 'mu': 20, 'sigma': 8},
-    'clyppt': {'min_val': 0, 'max_val': 81, 'nan': -32768, 'new_nan': -1, 'mu': 22, 'sigma': 8},
-    'orcdrc': {'min_val': 0, 'max_val': 524, 'nan': -32768, 'new_nan': -1, 'mu': 24, 'sigma': 21},
-    'phihox': {'min_val': 32, 'max_val': 98, 'nan': -32768, 'new_nan': 31, 'mu': 64, 'sigma': 11},
-    'sltppt': {'min_val': 0, 'max_val': 86, 'nan': -32768, 'new_nan': -1, 'mu': 37, 'sigma': 11},
-    'sndppt': {'min_val': 0, 'max_val': 99, 'nan': -32768, 'new_nan': -1, 'mu': 42, 'sigma': 14},
+    'bio_1': {'nan': -117, 'mu': 101, 'sigma': 58},
+    'bio_2': {'nan': -54, 'mu': 131, 'sigma': 28},
+    'bio_3': {'nan': 18, 'mu': 36, 'sigma': 8},
+    'bio_4': {'nan': 1623, 'mu': 8267, 'sigma': 2152},
+    'bio_5': {'nan': -26, 'mu': 289, 'sigma': 48},
+    'bio_6': {'nan': -277, 'mu': -78, 'sigma': 83},
+    'bio_7': {'nan': 116, 'mu': 367, 'sigma': 72},
+    'bio_8': {'nan': -170, 'mu': 149, 'sigma': 82},
+    'bio_9': {'nan': -182, 'mu': 54, 'sigma': 114},
+    'bio_10': {'nan': -54, 'mu': 205, 'sigma': 47},
+    'bio_11': {'nan': -187, 'mu': -7, 'sigma': 80},
+    'bio_12': {'nan': -36, 'mu': 746, 'sigma': 383},
+    'bio_13': {'nan': 6, 'mu': 98, 'sigma': 47},
+    'bio_14': {'nan': -1, 'mu': 34, 'sigma': 26},
+    'bio_15': {'nan': 4, 'mu': 38, 'sigma': 23},
+    'bio_16': {'nan': 18, 'mu': 265, 'sigma': 132},
+    'bio_17': {'nan': -1, 'mu': 117, 'sigma': 84},
+    'bio_18': {'nan': 0, 'mu': 213, 'sigma': 107},
+    'bio_19': {'nan': 4, 'mu': 163, 'sigma': 137},
+    'bdticm': {'nan': -1, 'mu': 2579, 'sigma': 3058},
+    'bldfie': {'nan': 92, 'mu': 1372, 'sigma': 137},
+    'cecsol': {'nan': -1, 'mu': 20, 'sigma': 8},
+    'clyppt': {'nan': -1, 'mu': 22, 'sigma': 8},
+    'orcdrc': {'nan': -1, 'mu': 24, 'sigma': 21},
+    'phihox': {'nan': 31, 'mu': 64, 'sigma': 11},
+    'sltppt': {'nan': -1, 'mu': 37, 'sigma': 11},
+    'sndppt': {'nan': -1, 'mu': 42, 'sigma': 14},
 }
 
 
@@ -50,12 +51,11 @@ class Raster(object):
     """
     Raster is dedicated to a single raster management...
     """
-    def __init__(self, path, country='FR', normalized=False, transform=None, size=256, nan=None, new_nan=None, mu=0,
-                 sigma=1, **kw):
+    def __init__(self, path, country='FR', normalized=False, transform=None, size=256, nan=None, mu=0,
+                 sigma=1, out_of_bounds="error", **kw):
         """
         Loads a tiff file describing an environmental raster into a numpy array and...
 
-        :type new_nan:
         :param path: the path of the raster (the directory)
         :param nan: the value to use when NaN number are present. If False, then default values will be used
         :param normalized: if True the raster will be normalized (minus the mean and divided by std)
@@ -68,33 +68,28 @@ class Raster(object):
 
         self.path = path
         self.name = path.name
-        self.no_data = new_nan
         self.normalized = normalized
         self.transform = transform
         self.size = size
+        self.out_of_bounds = out_of_bounds
+        self.nan = nan
 
-        # FIXME nodata argument useless here?
         # Loading the raster
         filename = path / (self.name + '_' + country + '.tif')
-        with rasterio.open(filename, nodata=nan) as src:
-            self.x_min = src.bounds.left
-            self.y_min = src.bounds.bottom
-            self.x_resolution = src.res[0]
-            self.y_resolution = src.res[1]
-            self.n_rows = src.height
-            self.n_cols = src.width
-            self.raster = np.squeeze(src.read())
+        with rasterio.open(filename) as dataset:
+            self.dataset = dataset
+            self.raster = np.squeeze(dataset.read())
+            nodata = self.dataset.nodata
 
-        # FIXME where is this test? (min_value = x_min or min_val?)
-        # value bellow min_value are considered incorrect and therefore no_data
-        self.raster[self.raster == nan] = new_nan
-        self.raster[np.isnan(self.raster)] = new_nan
+        # Changes nodata to user specified value
+        if nan:
+            self.raster[self.raster == nodata] = nan
+            self.raster[np.isnan(self.raster)] = nan
 
         # if asked, normalize the whole raster where data is available
         if normalized:
-            # FIXME should be new_nan?
-            selected_cell = self.raster != nan
-            self.raster[selected_cell] = (self.raster[selected_cell] - mu) / sigma
+            non_nan = self.raster != nan
+            self.raster[non_nan] = (self.raster[non_nan] - mu) / sigma
 
         # setting the shape of the raster
         self.shape = self.raster.shape
@@ -106,17 +101,19 @@ class Raster(object):
         :param item: GPS position as tuple (latitude, longitude)
         :return: a patch
         """
-        row_num = int(self.n_rows - (item[0] - self.y_min) / self.y_resolution)
-        col_num = int((item[1] - self.x_min) / self.x_resolution)
+        row, col = self.dataset.index(item[1], item[0])
 
         # environmental vector
         if self.size == 1:
-            patch = self.raster[row_num, col_num].astype(np.float)
+            patch = self.raster[row, col].astype(np.float)
         else:
-            half_size = int(self.size/2)
+            # FIXME can it happen that part of the patch is outside the raster? (and how about the mask of the dataset?)
+            half_size = int(self.size / 2)
+            # FIXME only way to trigger an exception? (slices don't)
+            self.raster[row, col]
             patch = self.raster[
-                row_num-half_size:row_num+half_size,
-                col_num - half_size:col_num+half_size
+                row - half_size:row + half_size,
+                col - half_size:col + half_size
             ].astype(np.float)
 
         patch = patch[np.newaxis]
@@ -124,9 +121,9 @@ class Raster(object):
 
     def __len__(self):
         """
-        :return: the depth of the tensor/vector...
+        :return: the depth of the tensor/vector
         """
-        return 1
+        return self.dataset.count
 
     def __getitem__(self, item):
         """
@@ -135,12 +132,32 @@ class Raster(object):
         :param item: GPS position as a tuple (latitude, longitude)
         :return: the extracted patch with eventually some transformations
         """
-        patch = self._get_patch(item)
+        try:
+            patch = self._get_patch(item)
 
-        if self.transform:
-            patch = self.transform(patch)
+            if self.transform:
+                patch = self.transform(patch)
 
-        return patch
+            return patch
+        except IndexError as e:
+            if self.out_of_bounds == "error":
+                raise e
+            else:
+                if self.out_of_bounds == "warn":
+                    warnings.warn("GPS position ({}, {}) out of bounds".format(*item))
+
+                if self.size == 1:
+                    return np.array([self.nan], dtype=np.float)
+                else:
+                    patch = np.empty((1, self.size, self.size), dtype=np.float)
+                    patch.fill(self.nan)
+                    return patch
+
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        return 'title: ' + self.name + '\n'
 
 
 class PatchExtractor(object):
@@ -148,7 +165,7 @@ class PatchExtractor(object):
     PatchExtractor handles the extraction of an environmental tensor from multiple rasters given a GPS
     position.
     """
-    def __init__(self, root_path, size=256, verbose=False, resolution=1.):
+    def __init__(self, root_path, size=256, resolution=1., out_of_bounds="error"):
         self.root_path = Path(root_path)
         if not self.root_path.exists():
             raise ValueError(
@@ -157,8 +174,8 @@ class PatchExtractor(object):
 
         self.size = size
 
-        self.verbose = verbose
         self.resolution = resolution
+        self.out_of_bounds = out_of_bounds
 
         self.rasters_fr = []
         self.rasters_us = []
@@ -182,6 +199,7 @@ class PatchExtractor(object):
         :param kwargs: updates the default arguments passed to Raster (nan, normalized, transform, etc.)
         """
         params = dict(raster_metadata[raster_name])
+        params["out_of_bounds"] = self.out_of_bounds
         params.update(kwargs)
 
         r_us = Raster(self.root_path / raster_name, 'USA', size=self.size, **params)
@@ -198,30 +216,17 @@ class PatchExtractor(object):
         self.rasters_us = []
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
     def __str__(self):
-        str_ = ''
+        result = ''
 
-        def raster_str(r):
-            result = ''
-            result += '-' * 50 + '\n'
-            result += 'title: ' + r.name + '\n'
-            result += '\t x_min: ' + str(r.x_min) + '\n'
-            result += '\t y_min: ' + str(r.y_min) + '\n'
-            result += '\t x_resolution: ' + str(r.x_resolution) + '\n'
-            result += '\t y_resolution: ' + str(r.y_resolution) + '\n'
-            result += '\t n_rows: ' + str(r.n_rows) + '\n'
-            result += '\t n_cols: ' + str(r.n_cols) + '\n'
-            return result
+        for rasters in [self.rasters_fr, self.rasters_us]:
+            for raster in rasters:
+                result += '-' * 50 + '\n'
+                result += str(raster)
 
-        for r in self.rasters_fr:
-            str_ += raster_str(r)
-
-        for r in self.rasters_us:
-            str_ += raster_str(r)
-
-        return str_
+        return result
 
     def __getitem__(self, item):
         """
@@ -229,11 +234,7 @@ class PatchExtractor(object):
         :return: return the environmental tensor or vector (size>1 or size=1)
         """
         rasters = self._raster(item)
-
-        if len(rasters) > 1:
-            return np.concatenate([r[item] for r in rasters])
-        else:
-            return np.array([rasters[0][item]])
+        return np.concatenate([r[item] for r in rasters])
 
     def __len__(self):
         """
@@ -262,12 +263,12 @@ class PatchExtractor(object):
 
         # metadata are the name of the variable and the bounding box in latitude-longitude coordinates
         metadata = [
-            (r.name, [
-                item[1] - (self.size // 2) * r.x_resolution,
-                item[1] + (self.size // 2) * r.x_resolution,
-                item[0] - (self.size // 2) * r.y_resolution,
-                item[0] + (self.size // 2) * r.y_resolution
-            ]) for r in rasters
+            (raster.name, [
+                item[1] - (self.size // 2) * raster.dataset.res[0],
+                item[1] + (self.size // 2) * raster.dataset.res[0],
+                item[0] - (self.size // 2) * raster.dataset.res[1],
+                item[0] + (self.size // 2) * raster.dataset.res[1]
+            ]) for raster in rasters
         ]
 
         # retrieve the patch... Eventually disabling the one hot encoding variables
