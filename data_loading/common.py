@@ -5,7 +5,7 @@ from PIL import Image
 import tifffile
 
 
-def load_patch(patch_id, data_path, landcover_mapping=None, return_arrays=True):
+def load_patch(patch_id, patches_path, landcover_mapping=None, return_arrays=True):
     patch_id = str(patch_id)
 
     region_id = patch_id[0]
@@ -19,7 +19,7 @@ def load_patch(patch_id, data_path, landcover_mapping=None, return_arrays=True):
     subfolder1 = patch_id[-2:]
     subfolder2 = patch_id[-4:-2]
 
-    filename = Path(data_path) / "patches" / region / subfolder1 / subfolder2 / patch_id
+    filename = Path(patches_path) / region / subfolder1 / subfolder2 / patch_id
 
     rgb_filename = filename.with_name(filename.stem + "_rgb.jpg")
     rgb_patch = Image.open(rgb_filename)
