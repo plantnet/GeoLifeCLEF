@@ -19,7 +19,7 @@ class Raster(object):
     Handles the loading and patch extraction of a single raster
     """
 
-    def __init__(self, path, country, size=256, nan=None, out_of_bounds="error"):
+    def __init__(self, path, country, size=256, nan=np.nan, out_of_bounds="error"):
         """
         Loads a GeoTIFF file describing an environmental raster
 
