@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
 
-def visualize_observation_patch(patch, landcover_labels=None):
+def visualize_observation_patch(patch, landcover_labels=None, return_fig=False):
     rgb_patch, near_ir_patch, altitude_patch, landcover_patch = patch
 
     if landcover_labels is None:
@@ -46,3 +46,6 @@ def visualize_observation_patch(patch, landcover_labels=None):
         ax.axis("off")
 
     fig.tight_layout()
+
+    if return_fig:
+        return fig
