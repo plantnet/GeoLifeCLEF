@@ -6,12 +6,15 @@ import numpy as np
 import rasterio
 
 
-raster_names = [
+bioclimatic_raster_names = [
     "bio_1", "bio_2", "bio_3", "bio_4", "bio_5", "bio_6", "bio_7", "bio_8", "bio_9",
     "bio_10", "bio_11", "bio_12", "bio_13", "bio_14", "bio_15", "bio_16", "bio_17",
-    "bio_18", "bio_19", "bdticm", "bldfie", "cecsol", "clyppt", "orcdrc", "phihox",
-    "sltppt", "sndppt"
+    "bio_18", "bio_19"
 ]
+pedologic_raster_names = [
+    "bdticm", "bldfie", "cecsol", "clyppt", "orcdrc", "phihox", "sltppt", "sndppt"
+]
+raster_names = bioclimatic_raster_names + pedologic_raster_names
 
 
 class Raster(object):
@@ -137,13 +140,31 @@ class PatchExtractor(object):
         self.rasters_fr = []
         self.rasters_us = []
 
-    def add_all(self, **kwargs):
+    def add_all_rasters(self, **kwargs):
         """
-        Add all variables (rasters) available at root_path
+        Add all variables (rasters) available
 
         :param kwargs: updates the default arguments passed to Raster (nan, out_of_bounds, etc.)
         """
         for raster_name in raster_names:
+            self.append(raster_name, **kwargs)
+
+    def add_all_bioclimatic_rasters(self, **kwargs):
+        """
+        Add all bioclimatic variables (rasters) available
+
+        :param kwargs: updates the default arguments passed to Raster (nan, out_of_bounds, etc.)
+        """
+        for raster_name in bioclimatic_raster_names:
+            self.append(raster_name, **kwargs)
+
+    def add_all_pedologic_rasters(self, **kwargs):
+        """
+        Add all pedologic variables (rasters) available
+
+        :param kwargs: updates the default arguments passed to Raster (nan, out_of_bounds, etc.)
+        """
+        for raster_name in pedologic_raster_names:
             self.append(raster_name, **kwargs)
 
     def append(self, raster_name, **kwargs):

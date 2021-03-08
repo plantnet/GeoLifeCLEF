@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
     # Loading rasters
     extractor = PatchExtractor(args.data_path / "rasters", size=1)
-    extractor.add_all(nan=np.nan)
+    extractor.add_all_rasters(nan=np.nan)
 
     # Computing the environmental vectors
     df_env_train = compute_environmental_vectors(df_train, extractor, as_dataframe=True)
