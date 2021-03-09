@@ -11,6 +11,9 @@ BASE_URL = "https://lilacdn.azureedge.net/geolifeclef-2020/"
 
 
 def download_file(url, filename, resume=True):
+    """
+    Download a file from URL with the option to resume previously started download.
+    """
     filename = Path(filename)
 
     with urllib.request.urlopen(url) as req:
@@ -51,6 +54,9 @@ def download_file(url, filename, resume=True):
 
 
 def check_file_md5sum(filename, md5sum):
+    """
+    Check the integrity of a file given an MD5 hash
+    """
     hash_md5 = hashlib.md5()
     with open(filename, "rb") as fp:
         for chunk in iter(lambda: fp.read(4096), b""):
@@ -78,11 +84,13 @@ if __name__ == "__main__":
     output_path = args.output_path
     os.makedirs(output_path, exist_ok=True)
 
+    # Download files list with hashes
     filename = "hashes.md5"
     print("Downloading {}... ".format(filename), end="", flush=True)
     download_file(BASE_URL + filename, output_path / filename, resume=False)
     print("SUCCESS", flush=True)
 
+    # Read files list
     filenames, hashes = [], []
     with open(output_path / filename, "r") as fp:
         for line in fp.readlines():
@@ -90,11 +98,9 @@ if __name__ == "__main__":
             filenames.append(filename)
             hashes.append(md5sum)
 
+    # Download and check integrity of files
     n_files = len(filenames)
     for i, (filename, md5sum) in enumerate(zip(filenames, hashes)):
-        if i > 3:
-            break
-
         print("Downloading {} [{}/{}]... ".format(filename, i+1, n_files), end="", flush=True)
         download_file(BASE_URL + filename, output_path / filename, resume=args.resume)
 
