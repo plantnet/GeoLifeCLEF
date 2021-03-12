@@ -183,7 +183,9 @@ def predict_top_k_set(y_score, k, disable_warning=False):
 
     n_classes = y_score.shape[1]
     s_pred = np.argpartition(y_score, n_classes - k, axis=1)[:, -k:]
-    return s_pred
+
+    # Return a copy instead of a view to save memory
+    return s_pred.copy()
 
 
 def predict_top_30_set(y_score):
