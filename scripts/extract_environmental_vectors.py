@@ -3,21 +3,23 @@ from pathlib import Path
 
 import pandas as pd
 import numpy as np
+from tqdm import tqdm
 
-from environmental_raster_tools import PatchExtractor, raster_names
+from data_loading.environmental_raster import PatchExtractor
 
 
 def compute_environmental_vectors(df, extractor, as_dataframe=True):
     def compute_environmental_vector(index):
-        position = df.iloc[index][["lat", "lon"]]
+        position = df.iloc[index][["latitude", "longitude"]]
         return extractor[position]
 
-    environmental_vectors = [compute_environmental_vector(i) for i in range(len(df))]
+    environmental_vectors = [compute_environmental_vector(i) for i in tqdm(range(len(df)))]
     environmental_vectors = np.asarray(environmental_vectors)
 
     if as_dataframe:
+        raster_names = [raster.name for raster in extractor.rasters_fr]
         df_env = pd.DataFrame(environmental_vectors, columns=raster_names)
-        df_env.index = df["observation_id"]
+        df_env.index = df.index
         df_env.index.name = "observation_id"
         return df_env
     else:
@@ -49,16 +51,17 @@ if __name__ == "__main__":
     df_us_test = pd.read_csv(args.data_path / "observations" / "observations_us_test.csv", sep=";", index_col="observation_id")
     df_test = pd.concat((df_fr_test, df_us_test))
 
+    df_train = df_train[["latitude", "longitude"]]
+    df = pd.concat((df_train, df_test))
+
     # Loading rasters
+    print("Loading rasters...")
     extractor = PatchExtractor(args.data_path / "rasters", size=1)
     extractor.add_all_rasters(nan=np.nan)
 
     # Computing the environmental vectors
-    df_env_train = compute_environmental_vectors(df_train, extractor, as_dataframe=True)
-    df_env_test = compute_environmental_vectors(df_test, extractor, as_dataframe=True)
-
-    # Aggregating the result
-    df_env = pd.concat((df_env_train, df_env_test))
+    print("Extracting environmental vectors...")
+    df_env = compute_environmental_vectors(df, extractor, as_dataframe=True)
     df_env.sort_index(inplace=True)
 
     # Saving the result to CSV file
