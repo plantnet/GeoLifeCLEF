@@ -44,6 +44,9 @@ def test_predict_top_k_set():
     result = predict_top_k_set(y_score, k=k)
     assert_same_top_k_sets(result, expected)
 
+    with pytest.warns(UserWarning):
+        predict_top_k_set(result, k)
+
 
 def test_top_k_error_rate_from_sets():
     y_true = [0, 1, 2]

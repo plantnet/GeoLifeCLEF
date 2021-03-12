@@ -45,7 +45,7 @@ def generic_validation(
             )
         )
 
-    if dtype is not None and not issubclass(arr.dtype.type, dtype):
+    if dtype is not None and not np.issubdtype(arr.dtype, dtype):
         raise ValueError(
             "{} should be of type {} (or derived), given {}".format(
                 name, dtype, arr.dtype
@@ -139,7 +139,7 @@ def validate_top_k_sets(s_pred):
     )
 
 
-def predict_top_k_set(y_score, k):
+def predict_top_k_set(y_score, k, disable_warning=False):
     r"""Predicts the top-k sets from scores for a given k.
 
     Parameters
@@ -148,6 +148,8 @@ def predict_top_k_set(y_score, k):
         Scores for each sample and label.
     k: int
         Value of k to use, should range from 1 to n_classes.
+    disable_warning: bool
+        Disables the warning trigger if y_score looks like it contains top-k sets rather than scores
 
     Returns
     -------
@@ -158,6 +160,18 @@ def predict_top_k_set(y_score, k):
     -----
     Complexity: :math:`O( n_\text{samples} \times n_\text{classes} )`.
     """
+    if not disable_warning:
+        try:
+            y_score = validate_top_k_sets(y_score)
+
+            if np.issubdtype(y_score.dtype, np.integer) and y_score.shape[1] == k:
+                warnings.warn(
+                    "y_score is an integer array with already {} columns".format(k),
+                    UserWarning
+                )
+        except ValueError:
+            pass
+
     y_score = validate_scores(y_score)
 
     n_classes = y_score.shape[1]
@@ -237,21 +251,8 @@ def top_k_error_rate(y_true, y_score, k, disable_warning=False):
     -----
     Complexity: :math:`O( n_\text{samples} \times n_\text{classes} )`.
     """
-    y_score = np.asarray(y_score)
-    if not disable_warning:
-        try:
-            y_score = validate_top_k_sets(y_score)
-
-            if y_score.dtype == np.integer and y_score.shape[1] == k:
-                warnings.warn(
-                    "y_score is an integer array with already {} columns".format(k),
-                    UserWarning
-                )
-        except ValueError:
-            pass
-
-    s_pred = predict_top_k_set(y_score, k)
-    return top_k_error_rate_given_sets(y_true, s_pred)
+    s_pred = predict_top_k_set(y_score, k, disable_warning=disable_warning)
+    return top_k_error_rate_from_sets(y_true, s_pred)
 
 
 def top_30_error_rate(y_true, y_score):
