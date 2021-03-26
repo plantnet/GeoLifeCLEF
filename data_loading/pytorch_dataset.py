@@ -1,64 +1,129 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
 from torch.utils.data import Dataset
 import torch
 
-import numpy as np
-
-from .environmental_raster_tools import PatchExtractor
+from .environmental_raster import PatchExtractor
 from .common import load_patch
 
 
-class DatasetGLC20(Dataset):
-    def __init__(self, labels, dataset, ids, patches, rasters=None, patch_extractor=None, use_rasters=True):
-        """
-        :param labels: list of labels
-        :param dataset: list of (latitude, longitude)
-        :param ids: list of identifiers
-        :param rasters: path to the rasters root
-        :param patches: path to the patches root
-        """
-        self.labels = labels
-        self.dataset = dataset
-        self.ids = ids
+class GeoLifeCLEF2021Dataset(Dataset):
+    """Pytorch dataset handler for GeoLifeCLEF 2021 dataset.
 
-        self.one_hot_size = 34
-        self.one_hot = np.eye(self.one_hot_size)
+    Parameters
+    ----------
+    root : string or pathlib.Path
+        Root directory of dataset.
+    subset : string, either "train", "val", "train+val" or "test"
+        Use the given subset ("train+val" is the complete training data).
+    use_rasters : boolean (optional)
+        If True, extracts patches from rasters.
+    patch_extractor : PatchExtractor object (optional)
+        Patch extractor to use if rasters are used.
+    transform : callable (optional)
+        A function/transform that takes a list of arrays and returns a transformed version.
+    target_transform : callable (optional)
+        A function/transform that takes in the target and transforms it.
+    """
+    def __init__(self, root, subset, use_rasters=True, patch_extractor=None, transform=None, target_transform=None):
+        self.root = Path(root)
+        self.subset = subset
+        self.transform = transform
+        self.target_transform = target_transform
 
-        self.rasters = rasters
-        self.patches = patches
+        possible_subsets = ["train", "val", "train+val", "test"]
+        if subset not in possible_subsets:
+            raise ValueError("Possible values for 'subset' are: {} (given {})".format(possible_subsets, subset))
 
-        if patch_extractor is None and rasters is not None and use_rasters:
-            # 256 is mandatory as images have been extracted in 256 and will be stacked in the __getitem__ method
-            patch_extractor = PatchExtractor(rasters, size=256, verbose=True)
-            patch_extractor.add_all_rasters()
+        if subset == "test":
+            subset_file_suffix = "test"
+            self.training_data = False
+        else:
+            subset_file_suffix = "train"
+            self.training_data = True
 
-        self.extractor = patch_extractor
+        df_fr = pd.read_csv(
+            root / "observations" / "observations_fr_{}.csv".format(subset_file_suffix),
+            sep=";",
+            index_col="observation_id"
+        )
+        df_us = pd.read_csv(
+            root / "observations" / "observations_us_{}.csv".format(subset_file_suffix),
+            sep=";",
+            index_col="observation_id"
+        )
+        df = pd.concat((df_fr, df_us))
+
+        if self.training_data and subset != "train+val":
+            ind = df.index[df["subset"] == subset]
+            df = df.loc[ind]
+
+        self.observation_ids = df.index
+        self.coordinates = df[["latitude", "longitude"]].values
+
+        if self.training_data:
+            self.targets = df["species_id"].values
+        else:
+            self.targets = None
+
+        # FIXME: add back landcover one hot encoding?
+        # self.one_hot_size = 34
+        # self.one_hot = np.eye(self.one_hot_size)
+
+        if use_rasters:
+            if patch_extractor is None:
+                # 256 is mandatory as images have been extracted in 256 and will be stacked in the __getitem__ method
+                patch_extractor = PatchExtractor(self.root / "rasters", size=256)
+                patch_extractor.add_all_rasters()
+
+            self.patch_extractor = patch_extractor
+        else:
+            self.patch_extractor = None
 
     def __len__(self):
-        return len(self.labels)
+        return len(self.observation_ids)
 
-    def __getitem__(self, idx):
-        latitude = self.dataset[idx][0]
-        longitude = self.dataset[idx][1]
-        id_ = str(self.ids[idx])
+    def __getitem__(self, index):
+        latitude = self.coordinates[index][0]
+        longitude = self.coordinates[index][1]
+        observation_id = self.observation_ids[index]
 
-        patches = load_patch(id_, self.patches)
+        patches = load_patch(observation_id, self.root / "patches")
 
-        # FIXME add back landcover one hot encoding?
+        # FIXME: add back landcover one hot encoding?
         # lc = patches[3]
         # lc_one_hot = np.zeros((self.one_hot_size,lc.shape[0], lc.shape[1]))
-        # row_idx = np.arange(lc.shape[0]).reshape(lc.shape[0], 1)
-        # col_idx = np.tile(np.arange(lc.shape[1]), (lc.shape[0], 1))
-        # lc_one_hot[lc, row_idx, col_idx] = 1
+        # row_index = np.arange(lc.shape[0]).reshape(lc.shape[0], 1)
+        # col_index = np.tile(np.arange(lc.shape[1]), (lc.shape[0], 1))
+        # lc_one_hot[lc, row_index, col_index] = 1
 
-        # extracting patch from rasters
-        if self.extractor is not None:
-            environmental_patches = self.extractor[(latitude, longitude)]
+        # Extracting patch from rasters
+        if self.patch_extractor is not None:
+            environmental_patches = self.patch_extractor[(latitude, longitude)]
             patches = patches + tuple(environmental_patches)
 
         # Concatenate all patches into a single tensor
-        patches = np.concatenate(patches)
+        patches = np.atleast_3d(*patches)
+        patches = np.concatenate(patches, axis=-1, dtype=np.float32)
 
         # Transpose data to (CHANNELS, WIDTH, HEIGHT)
         patches = np.transpose(patches, (2, 0, 1))
 
-        return torch.from_numpy(patches).float(), self.labels[idx]
+        # Convert patches to Torch array
+        patches = torch.from_numpy(patches)
+
+        if self.transform:
+            patches = self.transform(patches)
+
+        if self.training_data:
+            target = self.targets[index]
+
+            if self.target_transform:
+                target = self.target_transform(target)
+
+            return patches, target
+        else:
+            return patches
