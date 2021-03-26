@@ -19,16 +19,24 @@ raster_names = bioclimatic_raster_names + pedologic_raster_names
 
 class Raster(object):
     """
-    Handles the loading and patch extraction of a single raster
+    Handles the loading and the patch extraction for a single raster
     """
 
     def __init__(self, path, country, size=256, nan=np.nan, out_of_bounds="error"):
-        """
-        Loads a GeoTIFF file describing an environmental raster
+        """Loads a GeoTIFF file containing an environmental raster
 
-        :param path: the path of the raster (the directory)
-        :param nan: the value to use when NaN number are present. If False, then default values will be used
-        :param size: the size of a patch (size x size)
+        Parameters
+        ----------
+        path : string / pathlib.Path
+            Path to the folder containing all the rasters.
+        country : string, either "FR" or "USA"
+            Which country to load raster from.
+        size : integer
+            Size in pixels (size x size) of the patch to extract around each location.
+        nan : float or None
+            Value to use to replace missing data in original rasters, if None, leaves default values.
+        out_of_bounds : string, either "error", "warn" or "ignore"
+            If "error", raises an exception if the location requested is out of bounds of the rasters. Set to "warn" to only produces a warning and to "ignore" to silently ignore it and return a patch filled with missing data.
         """
         path = Path(path)
         if not path.exists():
@@ -49,7 +57,7 @@ class Raster(object):
         with rasterio.open(filename) as dataset:
             self.dataset = dataset
             self.raster = dataset.read(1).astype(np.float32)
-            mask = self.dataset.read_masks(1).astype(np.bool)
+            mask = self.dataset.read_masks(1).astype(bool)
 
         # Changes nodata to user specified value
         if nan:
@@ -59,22 +67,29 @@ class Raster(object):
         # setting the shape of the raster
         self.shape = self.raster.shape
 
-    def _get_patch(self, item):
-        """
-        Avoid using this method directly
+    def _extract_patch(self, coordinates):
+        """Extracts the patch around the given GPS coordinates.
+        Avoid using this method directly.
 
-        :param item: GPS position as tuple (latitude, longitude)
-        :return: a patch
-        """
-        row, col = self.dataset.index(item[1], item[0])
+        Parameter
+        ----------
+        coordinates : tuple containing two floats
+            GPS coordinates (latitude, longitude)
 
-        # environmental vector
+        Returns
+        -------
+        patch : 2d array of floats, [size, size], or single float if size == 1
+            Extracted patch around the given coordinates.
+        """
+        row, col = self.dataset.index(coordinates[1], coordinates[0])
+
         if self.size == 1:
+            # Environmental vector
             patch = self.raster[row, col]
         else:
-            # FIXME can it happen that part of the patch is outside the raster? (and how about the mask of the dataset?)
+            # FIXME: can it happen that part of the patch is outside the raster? (and how about the mask of the dataset?)
             half_size = int(self.size / 2)
-            # FIXME only way to trigger an exception? (slices don't)
+            # FIXME: only way to trigger an exception? (slices don't)
             self.raster[row, col]
             patch = self.raster[
                 row - half_size:row + half_size,
@@ -85,26 +100,36 @@ class Raster(object):
         return patch
 
     def __len__(self):
-        """
-        :return: the depth of the tensor/vector
+        """Number of bands in the raster (should always be equal to 1).
+
+        Returns
+        -------
+        n_bands : integer
+            Number of bands in the raster
         """
         return self.dataset.count
 
-    def __getitem__(self, item):
-        """
-        The method to use to retrieve a patch.
+    def __getitem__(self, coordinates):
+        """Extracts the patch around the given GPS coordinates.
 
-        :param item: GPS position as a tuple (latitude, longitude)
-        :return: the extracted patch
+        Parameters
+        ----------
+        coordinates : tuple containing two floats
+            GPS coordinates (latitude, longitude)
+
+        Returns
+        -------
+        patch : 2d array of floats, [size, size], or single float if size == 1
+            Extracted patch around the given coordinates.
         """
         try:
-            return self._get_patch(item)
+            return self._extract_patch(coordinates)
         except IndexError as e:
             if self.out_of_bounds == "error":
                 raise e
             else:
                 if self.out_of_bounds == "warn":
-                    warnings.warn("GPS position ({}, {}) out of bounds".format(*item))
+                    warnings.warn("GPS coordinates ({}, {}) out of bounds".format(*coordinates))
 
                 if self.size == 1:
                     return np.array([self.nan], dtype=np.float32)
@@ -122,11 +147,19 @@ class Raster(object):
 
 class PatchExtractor(object):
     """
-    PatchExtractor handles the extraction of an environmental tensor from multiple rasters given a GPS
-    position.
+    Handles the loading and extraction of an environmental tensor from multiple rasters given GPS coordinates.
     """
 
     def __init__(self, root_path, size=256):
+        """Constructor
+
+        Parameters
+        ----------
+        root_path : string or pathlib.Path
+            Path to the folder containing all the rasters.
+        size : integer
+            Size in pixels (size x size) of the patches to extract around each location.
+        """
         self.root_path = Path(root_path)
         if not self.root_path.exists():
             raise ValueError(
@@ -141,39 +174,49 @@ class PatchExtractor(object):
         self.rasters_us = []
 
     def add_all_rasters(self, **kwargs):
-        """
-        Add all variables (rasters) available
+        """Add all variables (rasters) available
 
-        :param kwargs: updates the default arguments passed to Raster (nan, out_of_bounds, etc.)
+        Parameters
+        ----------
+        kwargs : dict
+            Updates the default arguments passed to Raster (nan, out_of_bounds, etc.)
         """
         for raster_name in raster_names:
             self.append(raster_name, **kwargs)
 
     def add_all_bioclimatic_rasters(self, **kwargs):
-        """
-        Add all bioclimatic variables (rasters) available
+        """Add all bioclimatic variables (rasters) available
 
-        :param kwargs: updates the default arguments passed to Raster (nan, out_of_bounds, etc.)
+        Parameters
+        ----------
+        kwargs : dict
+            Updates the default arguments passed to Raster (nan, out_of_bounds, etc.)
         """
         for raster_name in bioclimatic_raster_names:
             self.append(raster_name, **kwargs)
 
     def add_all_pedologic_rasters(self, **kwargs):
-        """
-        Add all pedologic variables (rasters) available
+        """Add all pedologic variables (rasters) available
 
-        :param kwargs: updates the default arguments passed to Raster (nan, out_of_bounds, etc.)
+        Parameters
+        ----------
+        kwargs : dict
+            Updates the default arguments passed to Raster (nan, out_of_bounds, etc.)
         """
         for raster_name in pedologic_raster_names:
             self.append(raster_name, **kwargs)
 
     def append(self, raster_name, **kwargs):
-        """
-        This method appends a new raster given its name.
+        """Loads and appends a single raster to the rasters already loaded.
+
         Can be useful to load only a subset of rasters or to pass configurations specific to each raster.
 
-        :param raster_name:
-        :param kwargs: updates the default arguments passed to Raster (nan, out_of_bounds, etc.)
+        Parameters
+        ----------
+        raster_name : string
+            Name of the raster to load, should be a subfolder of root_path.
+        kwargs : dict
+            Updates the default arguments passed to Raster (nan, out_of_bounds, etc.)
         """
         r_us = Raster(self.root_path / raster_name, "USA", size=self.size, **kwargs)
         r_fr = Raster(self.root_path / raster_name, "FR", size=self.size, **kwargs)
@@ -182,11 +225,28 @@ class PatchExtractor(object):
         self.rasters_fr.append(r_fr)
 
     def clean(self):
-        """
-        Remove all rasters from the extractor.
+        """Remove all rasters from the extractor.
         """
         self.rasters_fr = []
         self.rasters_us = []
+
+    def _get_rasters_list(self, coordinates):
+        """Returns the list of rasters from the appropriate country
+
+        Parameters
+        ----------
+        coordinates : tuple containing two floats
+            GPS coordinates (latitude, longitude)
+
+        Returns
+        -------
+        rasters : list of Raster objects
+            All previously loaded rasters.
+        """
+        if coordinates[1] > -10.0:
+            return self.rasters_fr
+        else:
+            return self.rasters_us
 
     def __repr__(self):
         return str(self)
@@ -201,60 +261,76 @@ class PatchExtractor(object):
 
         return result
 
-    def __getitem__(self, item):
+    def __getitem__(self, coordinates):
+        """Extracts the patches around the given GPS coordinates for all the previously loaded rasters.
+
+        Parameters
+        ----------
+        coordinates : tuple containing two floats
+            GPS coordinates (latitude, longitude)
+
+        Returns
+        -------
+        patch : 3d array of floats, [n_rasters, size, size], or 1d array of floats, [n_rasters,], if size == 1
+            Extracted patches around the given coordinates.
         """
-        :param item: the GPS location (latitude, longitude)
-        :return: return the environmental tensor or vector (size>1 or size=1)
-        """
-        rasters = self._raster(item)
-        return np.concatenate([r[item] for r in rasters])
+        rasters = self._get_rasters_list(coordinates)
+        return np.concatenate([r[coordinates] for r in rasters])
 
     def __len__(self):
-        """
-        :return: the number of variables (not the size of the tensor when some variables have a one hot encoding
-                 representation)
+        """Number of variables/rasters loaded.
+
+        Returns
+        -------
+        n_rasters : integer
+            Number of loaded rasters
         """
         return len(self.rasters_fr)
 
-    def _raster(self, item):
-        if item[1] > -10.0:
-            return self.rasters_fr
-        else:
-            return self.rasters_us
+    def plot(self, coordinates, return_fig=False, n_cols=5, fig=None, resolution=1.0):
+        """Plot an environmental tensor (only works if size > 1)
 
-    def plot(self, item, return_fig=False, n_cols=5, alpha=1.0, fig=None, resolution=1.0):
-        """
-        Plot an environmental tensor (size > 1)...
+        Parameters
+        ----------
+        coordinates : tuple containing two floats
+            GPS coordinates (latitude, longitude)
+        return_fig : boolean
+            If True, returns the created plt.Figure object
+        n_cols : integer
+            Number of columns to use
+        fig : plt.Figure or None
+            If not None, use the given plt.Figure object instead of creating a new one
+        resolution : float
+            Resolution of the created figure
 
-        :param alpha:
-        :param n_cols:
-        :param item: the GPS location (latitude, longitude)
-        :param return_fig: if True, the matplotlib fig will be returned, if False, it will be displayed
-        :param style: style of the chart
+        Returns
+        -------
+        fig : plt.Figure
+            If return_fig is True, the used plt.Figure object
         """
         if self.size <= 1:
             raise ValueError("Plot works only for tensors: size must be > 1")
 
-        rasters = self._raster(item)
+        rasters = self._get_rasters_list(coordinates)
 
-        # metadata are the name of the variable and the bounding box in latitude-longitude coordinates
+        # Metadata are the name of the variables and the bounding boxes in latitude-longitude coordinates
         metadata = [
             (
                 raster.name,
                 [
-                    item[1] - (self.size // 2) * raster.dataset.res[0],
-                    item[1] + (self.size // 2) * raster.dataset.res[0],
-                    item[0] - (self.size // 2) * raster.dataset.res[1],
-                    item[0] + (self.size // 2) * raster.dataset.res[1],
+                    coordinates[1] - (self.size // 2) * raster.dataset.res[0],
+                    coordinates[1] + (self.size // 2) * raster.dataset.res[0],
+                    coordinates[0] - (self.size // 2) * raster.dataset.res[1],
+                    coordinates[0] + (self.size // 2) * raster.dataset.res[1],
                 ],
             )
             for raster in rasters
         ]
 
-        # retrieve the patch... Eventually disabling the one hot encoding variables
-        patch = self[item]
+        # Extracts the patch
+        patch = self[coordinates]
 
-        # computing number of rows and columns
+        # Computing number of rows and columns
         n_rows = (patch.shape[0] + (n_cols - 1)) // n_cols
 
         if fig is None:
@@ -270,12 +346,10 @@ class PatchExtractor(object):
             ax.set_title(k[0], fontsize=20)
             fig.colorbar(im, ax=ax)
 
-        # for ax in axes:
         for ax in axes[len(metadata):]:
             ax.axis("off")
 
         fig.tight_layout()
-        fig.patch.set_alpha(alpha)
 
         if return_fig:
             return fig

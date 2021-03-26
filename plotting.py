@@ -4,6 +4,22 @@ from matplotlib.patches import Patch
 
 
 def visualize_observation_patch(patch, landcover_labels=None, return_fig=False):
+    """Plots patch data
+
+    Parameters
+    ----------
+    patch : tuple of size 4 containing 2d array-like objects
+        Patch data as returned by `load_patch`.
+    landcover_labels : list of strings
+        Labels corresponding to the landcover codes.
+    return_fig : boolean
+        If True, returns the created plt.Figure object
+
+    Returns
+    -------
+    fig : plt.Figure
+        If return_fig is True, the used plt.Figure object    Returns
+    """
     rgb_patch, near_ir_patch, altitude_patch, landcover_patch = patch
 
     if landcover_labels is None:
