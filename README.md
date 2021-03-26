@@ -9,3 +9,4 @@ This repository contains some Python code useful for the [GeoLifeCLEF 2021 chall
 
 In particular, make sure to check the `Getting started` notebooks in directory of the same name for some starter code for data loading and visualization as well as some baselines computation.
 
+We also provide a Pytorch dataset loader which can be used out of hands or adapt to one's needs, it can be found in `data_loading/pytorch_dataset.py`.
