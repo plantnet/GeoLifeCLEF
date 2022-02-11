@@ -46,12 +46,12 @@ class GeoLifeCLEF2021Dataset(Dataset):
             self.training_data = True
 
         df_fr = pd.read_csv(
-            root / "observations" / "observations_fr_{}.csv".format(subset_file_suffix),
+            self.root / "observations" / "observations_fr_{}.csv".format(subset_file_suffix),
             sep=";",
             index_col="observation_id"
         )
         df_us = pd.read_csv(
-            root / "observations" / "observations_us_{}.csv".format(subset_file_suffix),
+            self.root / "observations" / "observations_us_{}.csv".format(subset_file_suffix),
             sep=";",
             index_col="observation_id"
         )
