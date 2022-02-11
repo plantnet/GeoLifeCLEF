@@ -6,12 +6,11 @@ import pandas as pd
 from torch.utils.data import Dataset
 import torch
 
-from .environmental_raster import PatchExtractor
 from .common import load_patch
 
 
-class GeoLifeCLEF2021Dataset(Dataset):
-    """Pytorch dataset handler for GeoLifeCLEF 2021 dataset.
+class GeoLifeCLEF2022Dataset(Dataset):
+    """Pytorch dataset handler for GeoLifeCLEF 2022 dataset.
 
     Parameters
     ----------
@@ -19,8 +18,12 @@ class GeoLifeCLEF2021Dataset(Dataset):
         Root directory of dataset.
     subset : string, either "train", "val", "train+val" or "test"
         Use the given subset ("train+val" is the complete training data).
+    region : string, either "both", "fr" or "us"
+        Load the observations of both France and US or only a single region.
+    patch_data : string or list of string
+        Specifies what type of patch data to load, possible values: 'all', 'rgb', 'near_ir', 'landcover' or 'altitude'.
     use_rasters : boolean (optional)
-        If True, extracts patches from rasters.
+        If True, extracts patches from environmental rasters.
     patch_extractor : PatchExtractor object (optional)
         Patch extractor to use if rasters are used.
     transform : callable (optional)
@@ -28,15 +31,21 @@ class GeoLifeCLEF2021Dataset(Dataset):
     target_transform : callable (optional)
         A function/transform that takes in the target and transforms it.
     """
-    def __init__(self, root, subset, use_rasters=True, patch_extractor=None, transform=None, target_transform=None):
+    def __init__(self, root, subset, *, region="both", patch_data="all", use_rasters=True, patch_extractor=None, transform=None, target_transform=None):
         self.root = Path(root)
         self.subset = subset
+        self.region = region
+        self.patch_data = patch_data
         self.transform = transform
         self.target_transform = target_transform
 
         possible_subsets = ["train", "val", "train+val", "test"]
         if subset not in possible_subsets:
             raise ValueError("Possible values for 'subset' are: {} (given {})".format(possible_subsets, subset))
+
+        possible_regions = ["both", "fr", "us"]
+        if region not in possible_regions:
+            raise ValueError("Possible values for 'region' are: {} (given {})".format(possible_regions, region))
 
         if subset == "test":
             subset_file_suffix = "test"
@@ -55,7 +64,13 @@ class GeoLifeCLEF2021Dataset(Dataset):
             sep=";",
             index_col="observation_id"
         )
-        df = pd.concat((df_fr, df_us))
+
+        if region == "both":
+            df = pd.concat((df_fr, df_us))
+        elif region == "fr":
+            df = df_fr
+        elif region == "us":
+            df = df_us
 
         if self.training_data and subset != "train+val":
             ind = df.index[df["subset"] == subset]
@@ -75,6 +90,7 @@ class GeoLifeCLEF2021Dataset(Dataset):
 
         if use_rasters:
             if patch_extractor is None:
+                from .environmental_raster import PatchExtractor
                 # 256 is mandatory as images have been extracted in 256 and will be stacked in the __getitem__ method
                 patch_extractor = PatchExtractor(self.root / "rasters", size=256)
                 patch_extractor.add_all_rasters()
@@ -91,7 +107,7 @@ class GeoLifeCLEF2021Dataset(Dataset):
         longitude = self.coordinates[index][1]
         observation_id = self.observation_ids[index]
 
-        patches = load_patch(observation_id, self.root / "patches")
+        patches = load_patch(observation_id, self.root / "patches", data=self.patch_data)
 
         # FIXME: add back landcover one hot encoding?
         # lc = patches[3]
@@ -106,8 +122,11 @@ class GeoLifeCLEF2021Dataset(Dataset):
             patches = patches + tuple(environmental_patches)
 
         # Concatenate all patches into a single tensor
-        patches = np.atleast_3d(*patches)
-        patches = np.concatenate(patches, axis=-1, dtype=np.float32)
+        if len(patches) == 1:
+            patches = patches[0]
+        else:
+            patches = np.atleast_3d(*patches)
+            patches = np.concatenate(patches, axis=-1, dtype=np.float32)
 
         # Transpose data to (CHANNELS, WIDTH, HEIGHT)
         patches = np.transpose(patches, (2, 0, 1))
