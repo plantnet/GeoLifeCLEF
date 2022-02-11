@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
 
-def visualize_observation_patch(patch, landcover_labels=None, return_fig=False):
+def visualize_observation_patch(patch, *, landcover_labels=None, return_fig=False):
     """Plots patch data
 
     Parameters
@@ -34,25 +34,33 @@ def visualize_observation_patch(patch, landcover_labels=None, return_fig=False):
             Patch(color=color, label=landcover_label)
         )
 
-    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(9, 9))
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(13, 8))
     axes = axes.ravel()
     axes_iter = iter(axes)
 
     ax = next(axes_iter)
     ax.imshow(rgb_patch)
-    ax.set_title("RGB satellite image")
+    ax.set_title("RGB image")
 
     ax = next(axes_iter)
     ax.imshow(near_ir_patch, cmap="gray")
-    ax.set_title("Near-IR satellite image")
+    ax.set_title("Near-IR image")
 
     ax = next(axes_iter)
-    im = ax.imshow(altitude_patch)
-    ax.set_title("Altitude")
-    fig.colorbar(im, ax=ax)
+    vmin = round(altitude_patch.min(), -1)
+    vmax = round(altitude_patch.max(), -1) + 10
+    ax.imshow(altitude_patch)
+    CS2 = ax.contour(
+        altitude_patch,
+        levels=np.arange(vmin, vmax, step=10),
+        colors="w",
+    )
+    ax.clabel(CS2, inline=True, fontsize=10)
+    ax.set_aspect("equal")
+    ax.set_title("Altitude (in meters)")
 
     ax = next(axes_iter)
-    im = ax.imshow(landcover_patch, interpolation="none", cmap=cmap, vmin=0, vmax=len(legend_elements))
+    ax.imshow(landcover_patch, interpolation="none", cmap=cmap, vmin=0, vmax=len(legend_elements))
     ax.set_title("Land cover")
     visible_landcover_categories = np.unique(landcover_patch)
     legend = [legend_elements[i] for i in visible_landcover_categories]
