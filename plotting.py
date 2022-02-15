@@ -47,15 +47,15 @@ def plot_map(*, region=None, extent=None, ax=None):
     return ax
 
 
-def visualize_observation_patch(patch, *, localisation=None, landcover_labels=None, return_fig=False):
+def visualize_observation_patch(patch, *, observation_data=None, landcover_labels=None, return_fig=False):
     """Plots patch data
 
     Parameters
     ----------
     patch : tuple of size 4 containing 2d array-like objects
         Patch data as returned by `load_patch`.
-    localisation : tuple of (latitude, longitude)
-        Provides the localisation of the observation to show on a map.
+    observation_data : pandas Series
+        Row of the dataframe containing the data of the observation.
     landcover_labels : list of strings
         Labels corresponding to the landcover codes.
     return_fig : boolean
@@ -80,8 +80,13 @@ def visualize_observation_patch(patch, *, localisation=None, landcover_labels=No
             Patch(color=color, label=landcover_label)
         )
 
-    if localisation is not None:
+    if observation_data is not None:
         import cartopy.crs as ccrs
+
+        localisation = observation_data[["latitude", "longitude"]]
+        species_id = getattr(observation_data, "species_id", None)
+        species_name = getattr(observation_data, "GBIF_species_name", None)
+        kingdom_name = getattr(observation_data, "GBIF_kingdom_name", None)
 
         fig = plt.figure(figsize=(15, 10))
 
@@ -93,6 +98,17 @@ def visualize_observation_patch(patch, *, localisation=None, landcover_labels=No
         plot_map(region=region, ax=ax)
         ax.scatter(localisation[1], localisation[0], marker="o", s=100, transform=ccrs.PlateCarree())
         ax.set_title("Observation localisation")
+
+        s = "Observation id: {}".format(observation_data.name)
+        s += "\nLocalisation: {:.3f}, {:.3f}".format(*localisation)
+        if species_id:
+            s += "\nSpecies id: {}".format(species_id)
+        if species_name:
+            s += "\nSpecies name: {}".format(species_name)
+        if kingdom_name:
+            s += "\nKingdom: {}".format(kingdom_name)
+        pos = ax.get_position()
+        fig.text(pos.x1 - pos.x0, pos.y0 - 0.2*(pos.y1 - pos.y0), s, ha="center", va="top")
 
         gs2 = gs[1].subgridspec(2, 2)
         axes = np.asarray([fig.add_subplot(gs) for gs in gs2])
@@ -133,7 +149,7 @@ def visualize_observation_patch(patch, *, localisation=None, landcover_labels=No
     for ax in axes:
         ax.axis("off")
 
-    if localisation is None:
+    if observation_data is None:
         fig.tight_layout()
 
     if return_fig:
