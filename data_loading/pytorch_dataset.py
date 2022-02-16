@@ -124,15 +124,6 @@ class GeoLifeCLEF2022Dataset(Dataset):
         # Concatenate all patches into a single tensor
         if len(patches) == 1:
             patches = patches[0]
-        else:
-            patches = np.atleast_3d(*patches)
-            patches = np.concatenate(patches, axis=-1, dtype=np.float32)
-
-        # Transpose data to (CHANNELS, WIDTH, HEIGHT)
-        patches = np.transpose(patches, (2, 0, 1))
-
-        # Convert patches to Torch array
-        patches = torch.from_numpy(patches)
 
         if self.transform:
             patches = self.transform(patches)
