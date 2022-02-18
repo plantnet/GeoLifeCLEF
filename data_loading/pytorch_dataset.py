@@ -1,10 +1,8 @@
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 from torch.utils.data import Dataset
-import torch
 
 from .common import load_patch
 
@@ -91,7 +89,6 @@ class GeoLifeCLEF2022Dataset(Dataset):
         if use_rasters:
             if patch_extractor is None:
                 from .environmental_raster import PatchExtractor
-                # 256 is mandatory as images have been extracted in 256 and will be stacked in the __getitem__ method
                 patch_extractor = PatchExtractor(self.root / "rasters", size=256)
                 patch_extractor.add_all_rasters()
 
