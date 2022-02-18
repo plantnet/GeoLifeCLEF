@@ -6,15 +6,19 @@ import numpy as np
 import rasterio
 
 
+# fmt: off
 bioclimatic_raster_names = [
     "bio_1", "bio_2", "bio_3", "bio_4", "bio_5", "bio_6", "bio_7", "bio_8", "bio_9",
     "bio_10", "bio_11", "bio_12", "bio_13", "bio_14", "bio_15", "bio_16", "bio_17",
     "bio_18", "bio_19"
 ]
+
 pedologic_raster_names = [
     "bdticm", "bldfie", "cecsol", "clyppt", "orcdrc", "phihox", "sltppt", "sndppt"
 ]
+
 raster_names = bioclimatic_raster_names + pedologic_raster_names
+# fmt: on
 
 
 class Raster(object):
@@ -92,8 +96,7 @@ class Raster(object):
             # FIXME: only way to trigger an exception? (slices don't)
             self.raster[row, col]
             patch = self.raster[
-                row - half_size:row + half_size,
-                col - half_size:col + half_size
+                row - half_size : row + half_size, col - half_size : col + half_size
             ]
 
         patch = patch[np.newaxis]
@@ -129,7 +132,9 @@ class Raster(object):
                 raise e
             else:
                 if self.out_of_bounds == "warn":
-                    warnings.warn("GPS coordinates ({}, {}) out of bounds".format(*coordinates))
+                    warnings.warn(
+                        "GPS coordinates ({}, {}) out of bounds".format(*coordinates)
+                    )
 
                 if self.size == 1:
                     return np.array([self.nan], dtype=np.float32)
@@ -225,8 +230,7 @@ class PatchExtractor(object):
         self.rasters_fr.append(r_fr)
 
     def clean(self):
-        """Remove all rasters from the extractor.
-        """
+        """Remove all rasters from the extractor."""
         self.rasters_fr = []
         self.rasters_us = []
 
@@ -334,7 +338,9 @@ class PatchExtractor(object):
         n_rows = (patch.shape[0] + (n_cols - 1)) // n_cols
 
         if fig is None:
-            fig = plt.figure(figsize=(n_cols * 6.4 * resolution, n_rows * 4.8 * resolution))
+            fig = plt.figure(
+                figsize=(n_cols * 6.4 * resolution, n_rows * 4.8 * resolution)
+            )
 
         axes = fig.subplots(n_rows, n_cols)
         axes = axes.ravel()
@@ -346,7 +352,7 @@ class PatchExtractor(object):
             ax.set_title(k[0], fontsize=20)
             fig.colorbar(im, ax=ax)
 
-        for ax in axes[len(metadata):]:
+        for ax in axes[len(metadata) :]:
             ax.axis("off")
 
         fig.tight_layout()

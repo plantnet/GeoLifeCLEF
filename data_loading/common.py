@@ -5,7 +5,14 @@ from PIL import Image
 import tifffile
 
 
-def load_patch(observation_id, patches_path, *, data="all", landcover_mapping=None, return_arrays=True):
+def load_patch(
+    observation_id,
+    patches_path,
+    *,
+    data="all",
+    landcover_mapping=None,
+    return_arrays=True
+):
     """Loads the patch data associated to an observation id
 
     Parameters
@@ -34,7 +41,11 @@ def load_patch(observation_id, patches_path, *, data="all", landcover_mapping=No
     elif region_id == "2":
         region = "us"
     else:
-        raise ValueError("Incorrect 'observation_id' {}, can not extract region id from it".format(observation_id))
+        raise ValueError(
+            "Incorrect 'observation_id' {}, can not extract region id from it".format(
+                observation_id
+            )
+        )
 
     subfolder1 = observation_id[-2:]
     subfolder2 = observation_id[-4:-2]

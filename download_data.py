@@ -16,8 +16,8 @@ def download_file(url, filename, resume=True):
     """
     filename = Path(filename)
 
-    with urllib.request.urlopen(url) as req:
-        total_size = int(req.getheader("Content-Length"))
+    with urllib.request.urlopen(url) as response:
+        total_size = int(response.getheader("Content-Length"))
 
     headers = {}
 
@@ -39,14 +39,22 @@ def download_file(url, filename, resume=True):
     request = urllib.request.Request(url, headers=headers)
 
     print("")
-    pbar = tqdm.tqdm(total=total_size, unit="B", unit_scale=True, unit_divisor=1024, mininterval=0.5, maxinterval=2, miniters=0)
+    pbar = tqdm.tqdm(
+        total=total_size,
+        unit="B",
+        unit_scale=True,
+        unit_divisor=1024,
+        mininterval=0.5,
+        maxinterval=2,
+        miniters=0,
+    )
 
     with open(filename, open_mode) as fp:
-        with urllib.request.urlopen(request) as req:
-            if req.getcode() == 206:
+        with urllib.request.urlopen(request) as response:
+            if response.getcode() == 206:
                 pbar.update(downloaded_size)
 
-            for line in req:
+            for line in response:
                 fp.write(line)
                 pbar.update(len(line))
 
@@ -66,7 +74,7 @@ def check_file_md5sum(filename, md5sum):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Downloads the GeoLifeCLEF dataset"
+        description="Downloads the GeoLifeCLEF dataset",
     )
     parser.add_argument(
         "--force",
@@ -101,7 +109,11 @@ if __name__ == "__main__":
     # Download and check integrity of files
     n_files = len(filenames)
     for i, (filename, md5sum) in enumerate(zip(filenames, hashes)):
-        print("Downloading {} [{}/{}]... ".format(filename, i+1, n_files), end="", flush=True)
+        print(
+            "Downloading {} [{}/{}]... ".format(filename, i + 1, n_files),
+            end="",
+            flush=True,
+        )
         download_file(BASE_URL + filename, output_path / filename, resume=args.resume)
 
         print("Checking integrity... ", end="", flush=True)

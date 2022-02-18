@@ -13,7 +13,9 @@ def compute_environmental_vectors(df, extractor, as_dataframe=True):
         position = df.iloc[index][["latitude", "longitude"]]
         return extractor[position]
 
-    environmental_vectors = [compute_environmental_vector(i) for i in tqdm(range(len(df)))]
+    environmental_vectors = [
+        compute_environmental_vector(i) for i in tqdm(range(len(df)))
+    ]
     environmental_vectors = np.asarray(environmental_vectors)
 
     if as_dataframe:
@@ -43,12 +45,28 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Loading observations
-    df_fr_train = pd.read_csv(args.data_path / "observations" / "observations_fr_train.csv", sep=";", index_col="observation_id")
-    df_us_train = pd.read_csv(args.data_path / "observations" / "observations_us_train.csv", sep=";", index_col="observation_id")
+    df_fr_train = pd.read_csv(
+        args.data_path / "observations" / "observations_fr_train.csv",
+        sep=";",
+        index_col="observation_id",
+    )
+    df_us_train = pd.read_csv(
+        args.data_path / "observations" / "observations_us_train.csv",
+        sep=";",
+        index_col="observation_id",
+    )
     df_train = pd.concat((df_fr_train, df_us_train))
 
-    df_fr_test = pd.read_csv(args.data_path / "observations" / "observations_fr_test.csv", sep=";", index_col="observation_id")
-    df_us_test = pd.read_csv(args.data_path / "observations" / "observations_us_test.csv", sep=";", index_col="observation_id")
+    df_fr_test = pd.read_csv(
+        args.data_path / "observations" / "observations_fr_test.csv",
+        sep=";",
+        index_col="observation_id",
+    )
+    df_us_test = pd.read_csv(
+        args.data_path / "observations" / "observations_us_test.csv",
+        sep=";",
+        index_col="observation_id",
+    )
     df_test = pd.concat((df_fr_test, df_us_test))
 
     df_train = df_train[["latitude", "longitude"]]

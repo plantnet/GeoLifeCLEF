@@ -29,7 +29,19 @@ class GeoLifeCLEF2022Dataset(Dataset):
     target_transform : callable (optional)
         A function/transform that takes in the target and transforms it.
     """
-    def __init__(self, root, subset, *, region="both", patch_data="all", use_rasters=True, patch_extractor=None, transform=None, target_transform=None):
+
+    def __init__(
+        self,
+        root,
+        subset,
+        *,
+        region="both",
+        patch_data="all",
+        use_rasters=True,
+        patch_extractor=None,
+        transform=None,
+        target_transform=None
+    ):
         self.root = Path(root)
         self.subset = subset
         self.region = region
@@ -39,11 +51,19 @@ class GeoLifeCLEF2022Dataset(Dataset):
 
         possible_subsets = ["train", "val", "train+val", "test"]
         if subset not in possible_subsets:
-            raise ValueError("Possible values for 'subset' are: {} (given {})".format(possible_subsets, subset))
+            raise ValueError(
+                "Possible values for 'subset' are: {} (given {})".format(
+                    possible_subsets, subset
+                )
+            )
 
         possible_regions = ["both", "fr", "us"]
         if region not in possible_regions:
-            raise ValueError("Possible values for 'region' are: {} (given {})".format(possible_regions, region))
+            raise ValueError(
+                "Possible values for 'region' are: {} (given {})".format(
+                    possible_regions, region
+                )
+            )
 
         if subset == "test":
             subset_file_suffix = "test"
@@ -53,14 +73,18 @@ class GeoLifeCLEF2022Dataset(Dataset):
             self.training_data = True
 
         df_fr = pd.read_csv(
-            self.root / "observations" / "observations_fr_{}.csv".format(subset_file_suffix),
+            self.root
+            / "observations"
+            / "observations_fr_{}.csv".format(subset_file_suffix),
             sep=";",
-            index_col="observation_id"
+            index_col="observation_id",
         )
         df_us = pd.read_csv(
-            self.root / "observations" / "observations_us_{}.csv".format(subset_file_suffix),
+            self.root
+            / "observations"
+            / "observations_us_{}.csv".format(subset_file_suffix),
             sep=";",
-            index_col="observation_id"
+            index_col="observation_id",
         )
 
         if region == "both":
@@ -89,6 +113,7 @@ class GeoLifeCLEF2022Dataset(Dataset):
         if use_rasters:
             if patch_extractor is None:
                 from .environmental_raster import PatchExtractor
+
                 patch_extractor = PatchExtractor(self.root / "rasters", size=256)
                 patch_extractor.add_all_rasters()
 
@@ -104,7 +129,9 @@ class GeoLifeCLEF2022Dataset(Dataset):
         longitude = self.coordinates[index][1]
         observation_id = self.observation_ids[index]
 
-        patches = load_patch(observation_id, self.root / "patches", data=self.patch_data)
+        patches = load_patch(
+            observation_id, self.root / "patches", data=self.patch_data
+        )
 
         # FIXME: add back landcover one hot encoding?
         # lc = patches[3]

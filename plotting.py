@@ -41,13 +41,21 @@ def plot_map(*, region=None, extent=None, ax=None):
     ax.add_feature(cfeature.COASTLINE)
     ax.add_feature(states_provinces, edgecolor="gray")
 
-    ax.gridlines(draw_labels=True, dms=True, x_inline=False, y_inline=False, linestyle="--")
+    ax.gridlines(
+        draw_labels=True, dms=True, x_inline=False, y_inline=False, linestyle="--"
+    )
     ax.set_aspect(1.25)
 
     return ax
 
 
-def visualize_observation_patch(patch, *, observation_data=None, landcover_labels=None, return_fig=False):
+def visualize_observation_patch(
+    patch,
+    *,
+    observation_data=None,
+    landcover_labels=None,
+    return_fig=False,
+):
     """Plots patch data
 
     Parameters
@@ -69,16 +77,14 @@ def visualize_observation_patch(patch, *, observation_data=None, landcover_label
     rgb_patch, near_ir_patch, altitude_patch, landcover_patch = patch
 
     if landcover_labels is None:
-        n_labels = np.max(landcover_patch)+1
+        n_labels = np.max(landcover_patch) + 1
         landcover_labels = np.arange(n_labels)
 
     cmap = plt.cm.get_cmap("viridis", len(landcover_labels))
 
     legend_elements = []
     for landcover_label, color in zip(landcover_labels, cmap.colors):
-        legend_elements.append(
-            Patch(color=color, label=landcover_label)
-        )
+        legend_elements.append(Patch(color=color, label=landcover_label))
 
     if observation_data is not None:
         import cartopy.crs as ccrs
@@ -96,7 +102,13 @@ def visualize_observation_patch(patch, *, observation_data=None, landcover_label
         ax = fig.add_subplot(gs1[0], projection=ccrs.PlateCarree())
         region = "fr" if localisation[1] > -6 else "us"
         plot_map(region=region, ax=ax)
-        ax.scatter(localisation[1], localisation[0], marker="o", s=100, transform=ccrs.PlateCarree())
+        ax.scatter(
+            localisation[1],
+            localisation[0],
+            marker="o",
+            s=100,
+            transform=ccrs.PlateCarree(),
+        )
         ax.set_title("Observation localisation")
 
         s = "Observation id: {}".format(observation_data.name)
@@ -108,7 +120,9 @@ def visualize_observation_patch(patch, *, observation_data=None, landcover_label
         if kingdom_name:
             s += "\nKingdom: {}".format(kingdom_name)
         pos = ax.get_position()
-        fig.text(pos.x1 - pos.x0, pos.y0 - 0.2*(pos.y1 - pos.y0), s, ha="center", va="top")
+        fig.text(
+            pos.x1 - pos.x0, pos.y0 - 0.2 * (pos.y1 - pos.y0), s, ha="center", va="top"
+        )
 
         gs2 = gs[1].subgridspec(2, 2)
         axes = np.asarray([fig.add_subplot(gs) for gs in gs2])
@@ -140,11 +154,19 @@ def visualize_observation_patch(patch, *, observation_data=None, landcover_label
     ax.set_title("Altitude (in meters)")
 
     ax = next(axes_iter)
-    ax.imshow(landcover_patch, interpolation="none", cmap=cmap, vmin=0, vmax=len(legend_elements))
+    ax.imshow(
+        landcover_patch,
+        interpolation="none",
+        cmap=cmap,
+        vmin=0,
+        vmax=len(legend_elements),
+    )
     ax.set_title("Land cover")
     visible_landcover_categories = np.unique(landcover_patch)
     legend = [legend_elements[i] for i in visible_landcover_categories]
-    ax.legend(handles=legend, handlelength=.75, bbox_to_anchor=(1, 0.5), loc="center left")
+    ax.legend(
+        handles=legend, handlelength=0.75, bbox_to_anchor=(1, 0.5), loc="center left"
+    )
 
     for ax in axes:
         ax.axis("off")
