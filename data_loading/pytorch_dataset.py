@@ -130,7 +130,7 @@ class GeoLifeCLEF2022Dataset(Dataset):
         observation_id = self.observation_ids[index]
 
         patches = load_patch(
-            observation_id, self.root / "patches", data=self.patch_data
+            observation_id, self.root, data=self.patch_data
         )
 
         # FIXME: add back landcover one hot encoding?

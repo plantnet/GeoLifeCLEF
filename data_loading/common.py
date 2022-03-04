@@ -37,9 +37,9 @@ def load_patch(
 
     region_id = observation_id[0]
     if region_id == "1":
-        region = "fr"
+        region = "patches-fr"
     elif region_id == "2":
-        region = "us"
+        region = "patches-us"
     else:
         raise ValueError(
             "Incorrect 'observation_id' {}, can not extract region id from it".format(
