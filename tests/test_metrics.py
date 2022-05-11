@@ -1,7 +1,12 @@
 import numpy as np
 import pytest
 
-from metrics import validate_top_k_sets, predict_top_k_set, top_k_error_rate_from_sets, top_k_error_rate
+from metrics import (
+    validate_top_k_sets,
+    predict_top_k_set,
+    top_k_error_rate_from_sets,
+    top_k_error_rate,
+)
 
 
 def assert_same_top_k_sets(result, expected):
@@ -24,20 +29,24 @@ def test_predict_top_k_set():
 
     k = 1
     result = predict_top_k_set(y_score, k=k)
-    expected = np.asarray([
-        [4],
-        [0],
-        [3],
-    ])
+    expected = np.asarray(
+        [
+            [4],
+            [0],
+            [3],
+        ]
+    )
     assert_same_top_k_sets(result, expected)
 
     k = 3
     result = predict_top_k_set(y_score, k=k)
-    expected = np.asarray([
-        [4, 3, 2],
-        [0, 1, 2],
-        [3, 4, 2],
-    ])
+    expected = np.asarray(
+        [
+            [4, 3, 2],
+            [0, 1, 2],
+            [3, 4, 2],
+        ]
+    )
     assert_same_top_k_sets(result, expected)
 
     y_score = np.array(y_score, dtype=np.float32)
@@ -50,11 +59,14 @@ def test_predict_top_k_set():
 
 def test_top_k_error_rate_from_sets():
     y_true = [0, 1, 2]
-    y_score = np.asarray([
-        [1, 2, 3, 4, 5],
-        [5, 4, 3, 2, 1],
-        [2, 1, 3, 5, 4],
-    ], dtype=np.float32)
+    y_score = np.asarray(
+        [
+            [1, 2, 3, 4, 5],
+            [5, 4, 3, 2, 1],
+            [2, 1, 3, 5, 4],
+        ],
+        dtype=np.float32,
+    )
     s_pred = predict_top_k_set(y_score, k=3)
 
     with pytest.raises(ValueError):
@@ -68,11 +80,14 @@ def test_top_k_error_rate_from_sets():
 def test_top_k_error_rate():
     k = 3
     y_true = [0, 1, 2]
-    y_score = np.asarray([
-        [1, 2, 3, 4, 5],
-        [5, 4, 3, 2, 1],
-        [2, 1, 3, 5, 4],
-    ], dtype=np.float32)
+    y_score = np.asarray(
+        [
+            [1, 2, 3, 4, 5],
+            [5, 4, 3, 2, 1],
+            [2, 1, 3, 5, 4],
+        ],
+        dtype=np.float32,
+    )
 
     s_pred = predict_top_k_set(y_score, k)
     with pytest.warns(UserWarning):

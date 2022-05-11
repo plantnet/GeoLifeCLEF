@@ -12,7 +12,7 @@ DATA_PATH = Path("../data")
 
 @pytest.mark.parametrize("observation_id", (10561900, 22068100))
 def test_load_patch(observation_id):
-    patches = load_patch(observation_id, DATA_PATH / "patches", return_arrays=True)
+    patches = load_patch(observation_id, DATA_PATH, return_arrays=True)
 
     assert len(patches) == 4
 
@@ -33,5 +33,5 @@ def test_load_patch(observation_id):
 
 @pytest.mark.parametrize("observation_id", (10561900, 22068100))
 def test_patch_plotting(observation_id):
-    patch = load_patch(observation_id, DATA_PATH / "patches")
+    patch = load_patch(observation_id, DATA_PATH)
     visualize_observation_patch(patch)
