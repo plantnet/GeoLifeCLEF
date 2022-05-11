@@ -1,15 +1,20 @@
 import argparse
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
 
-from data_loading.environmental_raster import PatchExtractor
+from data_loading.environmental_raster import PatchExtractor, Patch
 
 
-def compute_environmental_vectors(df, extractor, as_dataframe=True):
-    def compute_environmental_vector(index):
+def compute_environmental_vectors(
+    df: pd.DataFrame,
+    extractor: PatchExtractor,
+    as_dataframe: bool = True,
+) -> Any:
+    def compute_environmental_vector(index: int) -> Patch:
         position = df.iloc[index][["latitude", "longitude"]]
         return extractor[position]
 

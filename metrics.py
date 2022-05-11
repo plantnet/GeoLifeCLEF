@@ -1,19 +1,26 @@
 import numbers
 import warnings
+from typing import Optional
 
 import numpy as np
+import numpy.typing as npt
 
 
 def generic_validation(
-    arr, name, ndim=None, dtype=None, allow_nan=True, allow_inf=True
-):
+    arr: npt.NDArray,
+    name: str,
+    ndim: Optional[int] = None,
+    dtype: npt.DTypeLike = None,
+    allow_nan: bool = True,
+    allow_inf: bool = True,
+) -> npt.NDArray:
     """Generic array validation
 
     Check if the given input satisfies the given constraints.
 
     Parameters
     ----------
-    arr : array-like
+    arr : array
         Array to validate.
     name : string
         Name of the array to use in exceptions.
@@ -61,7 +68,7 @@ def generic_validation(
     return arr
 
 
-def validate_labels(labels):
+def validate_labels(labels: npt.ArrayLike) -> npt.NDArray:
     """Validate labels array
 
     Check if the given input is a 1d array with finite non-NaN integers values.
@@ -87,7 +94,7 @@ def validate_labels(labels):
     )
 
 
-def validate_scores(scores):
+def validate_scores(scores: npt.ArrayLike) -> npt.NDArray:
     """Validate scores array
 
     Check if the given input is a 2d array with non-NaN numerical values.
@@ -113,7 +120,7 @@ def validate_scores(scores):
     )
 
 
-def validate_top_k_sets(s_pred):
+def validate_top_k_sets(s_pred: npt.ArrayLike) -> npt.NDArray:
     """Validate top-k sets
 
     Check if the given input is an array representing sets.
@@ -139,12 +146,16 @@ def validate_top_k_sets(s_pred):
     )
 
 
-def predict_top_k_set(y_score, k, disable_warning=False):
+def predict_top_k_set(
+    y_score: npt.ArrayLike,
+    k: int,
+    disable_warning: bool = False,
+) -> npt.NDArray:
     r"""Predicts the top-k sets from scores for a given k.
 
     Parameters
     ----------
-    y_score: 2d array, [n_samples, n_classes]
+    y_score: 2d array-like, [n_samples, n_classes]
         Scores for each sample and label.
     k: int
         Value of k to use, should range from 1 to n_classes.
@@ -188,12 +199,12 @@ def predict_top_k_set(y_score, k, disable_warning=False):
     return s_pred.copy()
 
 
-def predict_top_30_set(y_score):
+def predict_top_30_set(y_score: npt.ArrayLike) -> npt.NDArray:
     r"""Predicts the top-30 sets from scores.
 
     Parameters
     ----------
-    y_score: 2d array, [n_samples, n_classes]
+    y_score: 2d array-like, [n_samples, n_classes]
         Scores for each sample and label.
 
     Returns
@@ -208,14 +219,14 @@ def predict_top_30_set(y_score):
     return predict_top_k_set(y_score, k=30)
 
 
-def top_k_error_rate_from_sets(y_true, s_pred):
+def top_k_error_rate_from_sets(y_true: npt.ArrayLike, s_pred: npt.ArrayLike) -> float:
     r"""Computes the top-k error rate from predicted sets.
 
     Parameters
     ----------
-    y_true: 1d array, [n_samples]
+    y_true: 1d array-like, [n_samples]
         True labels.
-    s_pred: 2d array, [n_samples, k]
+    s_pred: 2d array-like, [n_samples, k]
         Previously computed top-k sets for each sample.
 
     Returns
@@ -230,14 +241,19 @@ def top_k_error_rate_from_sets(y_true, s_pred):
     return 1 - np.mean(pointwise_accuracy)
 
 
-def top_k_error_rate(y_true, y_score, k, disable_warning=False):
+def top_k_error_rate(
+    y_true: npt.ArrayLike,
+    y_score: npt.ArrayLike,
+    k: int,
+    disable_warning: bool = False,
+) -> float:
     r"""Computes the top-k error rate for a given k.
 
     Parameters
     ----------
-    y_true: 1d array, [n_samples]
+    y_true: 1d array-like, [n_samples]
         True labels.
-    y_score: 2d array, [n_samples, n_classes]
+    y_score: 2d array-like, [n_samples, n_classes]
         Scores for each label.
     k: int
         Value of k to use, should range from 1 to n_classes.
@@ -257,7 +273,7 @@ def top_k_error_rate(y_true, y_score, k, disable_warning=False):
     return top_k_error_rate_from_sets(y_true, s_pred)
 
 
-def top_30_error_rate(y_true, y_score):
+def top_30_error_rate(y_true: npt.ArrayLike, y_score: npt.ArrayLike) -> float:
     r"""Computes the top-30 error rate.
 
     Parameters
