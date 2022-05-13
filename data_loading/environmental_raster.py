@@ -72,13 +72,16 @@ class Raster(object):
         filename = path / "{}_{}.tif".format(self.name, country)
         with rasterio.open(filename) as dataset:
             self.dataset = dataset
-            self.raster = dataset.read(1).astype(np.float32)
-            mask = self.dataset.read_masks(1).astype(bool)
+            raster = dataset.read(1, masked=True, out_dtype=np.float32)
 
         # Changes nodata to user specified value
         if nan:
-            self.raster[np.isnan(self.raster)] = nan
-            self.raster[~mask] = nan
+            raster[np.isnan(raster)] = nan
+            raster = raster.filled(nan)
+        else:
+            raster = raster.data
+
+        self.raster = raster
 
         # setting the shape of the raster
         self.shape = self.raster.shape
@@ -103,12 +106,27 @@ class Raster(object):
             # Environmental vector
             patch = self.raster[row, col]
         else:
-            # FIXME: can it happen that part of the patch is outside the raster? (and how about the mask of the dataset?)
-            half_size = int(self.size / 2)
+            half_size = self.size // 2
+            height, width = self.shape
+
             # FIXME: only way to trigger an exception? (slices don't)
             self.raster[row, col]
-            patch = self.raster[
-                row - half_size : row + half_size, col - half_size : col + half_size
+
+            raster_row_slice = slice(max(0, row - half_size), row + half_size)
+            raster_col_slice = slice(max(0, col - half_size), col + half_size)
+
+            patch_row_slice = slice(
+                max(0, half_size - row), self.size - max(0, half_size - (height - row))
+            )
+            patch_col_slice = slice(
+                max(0, half_size - col), self.size - max(0, half_size - (width - col))
+            )
+
+            patch = np.full(
+                (self.size, self.size), fill_value=self.nan, dtype=np.float32
+            )
+            patch[patch_row_slice, patch_col_slice] = self.raster[
+                raster_row_slice, raster_col_slice
             ]
 
         patch = patch[np.newaxis]
@@ -149,11 +167,13 @@ class Raster(object):
                     )
 
                 if self.size == 1:
-                    return np.array([self.nan], dtype=np.float32)
+                    patch = np.array([self.nan], dtype=np.float32)
                 else:
-                    patch = np.empty((1, self.size, self.size), dtype=np.float32)
-                    patch.fill(self.nan)
-                    return patch
+                    patch = np.full(
+                        (1, self.size, self.size), fill_value=self.nan, dtype=np.float32
+                    )
+
+                return patch
 
     def __repr__(self) -> str:
         return str(self)
