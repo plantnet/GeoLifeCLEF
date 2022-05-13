@@ -1,9 +1,12 @@
+from __future__ import annotations
 import numbers
 import warnings
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 import numpy as np
-import numpy.typing as npt
+
+if TYPE_CHECKING:
+    import numpy.typing as npt
 
 
 def generic_validation(

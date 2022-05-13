@@ -1,11 +1,17 @@
+from __future__ import annotations
 import warnings
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.typing as npt
 import rasterio
+
+if TYPE_CHECKING:
+    import numpy.typing as npt
+
+    Coordinates = tuple[float, float]
+    Patch = npt.NDArray[np.float32]
 
 
 # fmt: off
@@ -21,9 +27,6 @@ pedologic_raster_names = [
 
 raster_names = bioclimatic_raster_names + pedologic_raster_names
 # fmt: on
-
-Coordinates = tuple[float, float]
-Patch = npt.NDArray[np.float32]
 
 
 class Raster(object):

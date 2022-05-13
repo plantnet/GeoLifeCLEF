@@ -3,18 +3,18 @@ from pathlib import Path
 from typing import Callable, Optional, Union, TYPE_CHECKING
 
 import numpy as np
-import numpy.typing as npt
 import pandas as pd
 
 from torch.utils.data import Dataset
 
-from .common import load_patch, Patches
+from .common import load_patch
 
 if TYPE_CHECKING:
+    import numpy.typing as npt
+    from .common import Patches
     from .environmental_raster import PatchExtractor
 
-
-Targets = npt.NDArray[np.int64]
+    Targets = npt.NDArray[np.int64]
 
 
 class GeoLifeCLEF2022Dataset(Dataset):

@@ -1,12 +1,15 @@
+from __future__ import annotations
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, TYPE_CHECKING
 
 import numpy as np
-import numpy.typing as npt
 from PIL import Image
 import tifffile
 
-Patches = npt.NDArray
+if TYPE_CHECKING:
+    import numpy.typing as npt
+
+    Patches = npt.NDArray
 
 
 def load_patch(
@@ -15,7 +18,7 @@ def load_patch(
     *,
     data: Union[str, list[str]] = "all",
     landcover_mapping: Optional[npt.NDArray] = None,
-    return_arrays: bool = True
+    return_arrays: bool = True,
 ) -> list[Patches]:
     """Loads the patch data associated to an observation id
 

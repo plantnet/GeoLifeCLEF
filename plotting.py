@@ -3,11 +3,11 @@ from typing import Optional, TYPE_CHECKING
 from collections.abc import Collection
 
 import numpy as np
-import numpy.typing as npt
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
 if TYPE_CHECKING:
+    import numpy.typing as npt
     import pandas as pd
 
 

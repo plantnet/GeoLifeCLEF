@@ -1,6 +1,11 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 import numpy as np
-import numpy.typing as npt
 from geopy import distance
+
+if TYPE_CHECKING:
+    import numpy.typing as npt
 
 WGS84_EQUATOR_CIRCUMFERENCE = 40075.017  # km
 WGS84_MERIDIAN_CIRCUMFERENCE = 40007.863  # km

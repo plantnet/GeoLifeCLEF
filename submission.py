@@ -1,7 +1,10 @@
-from typing import Iterable
+from __future__ import annotations
+from typing import Iterable, TYPE_CHECKING
 
-import numpy.typing as npt
 import pandas as pd
+
+if TYPE_CHECKING:
+    import numpy.typing as npt
 
 
 def generate_submission_file(
