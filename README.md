@@ -1,4 +1,4 @@
-# GeoLifeCLEF 2022
+# GeoLifeCLEF 2023
 
 ![Example of patch data](https://raw.githubusercontent.com/maximiliense/GLC/master/images/patches_sample_FR.jpg "Example of patch data")
 
