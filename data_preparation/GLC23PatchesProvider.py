@@ -67,7 +67,7 @@ class PatchProvider(object):
         # show the plot
         plt.show()
 
-class RasterProvider(PatchProvider):
+class RasterPatchProvider(PatchProvider):
     def __init__(self, raster_path, size=64, spatial_noise=0, normalize=False, fill_zero_if_error=False):
         super().__init__(size, normalize)
         self.spatial_noise = spatial_noise
@@ -109,15 +109,15 @@ class RasterProvider(PatchProvider):
 
     def __getitem__(self, item):
         """
-        :param item: the GPS location {'gps':(latitude, longitude)}
+        :param item: dictionary that needs to contains at least the keys latitude and longitude ({'latitude': lat, 'longitude':lon})
         :return: return the environmental tensor or vector (size>1 or size=1)
         """
         
         # convert the lat, lon coordinates to EPSG:32738
         if self.transformer:
-            lon, lat = self.transformer.transform(item['gps'][1], item['gps'][0])
+            lon, lat = self.transformer.transform(item['longitude'], item['latitude'][0])
         else:
-            lon, lat = (item['gps'][1], item['gps'][0])
+            lon, lat = (item['longitude'], item['latitude'])
 
         # add noise as data augmentation
         if self.spatial_noise > 0:
@@ -151,7 +151,7 @@ class RasterProvider(PatchProvider):
         result += '-' * 50
         return result
 
-class MultipleRasterProvider(object):
+class MultipleRasterPatchProvider(object):
     def __init__(self, rasters_folder, select=None, size=64, spatial_noise=0, normalize=False, fill_zero_if_error=False):
         files = os.listdir(rasters_folder)
         # Filter files to include only those with .tif extension
@@ -160,7 +160,7 @@ class MultipleRasterProvider(object):
             select = [r+'.tif' for r in select]
             rasters_paths = [r for r in rasters_paths if r in select]
 
-        self.rasters_providers = [RasterProvider(rasters_folder+path, size=size, spatial_noise=spatial_noise, normalize=normalize, fill_zero_if_error=fill_zero_if_error) for path in rasters_paths]
+        self.rasters_providers = [RasterPatchProvider(rasters_folder+path, size=size, spatial_noise=spatial_noise, normalize=normalize, fill_zero_if_error=fill_zero_if_error) for path in rasters_paths]
         self.nb_layers = sum([len(raster) for raster in self.rasters_providers])
     
     def __getitem__(self, item):
@@ -184,7 +184,7 @@ class JpegPatchProvider(PatchProvider):
     Args:
         object (object): object class.
     """
-    def __init__(self, root_path, channel_list=None, normalize=False, patch_transform=None, size=128):
+    def __init__(self, root_path, select=None, normalize=False, patch_transform=None, size=128):
         """Class constructor.
 
         Args:
@@ -198,7 +198,16 @@ class JpegPatchProvider(PatchProvider):
         self.patch_transform = patch_transform
         self.root_path = root_path
         self.ext = '.jpeg'
-        self.channels = [c.lower() for c in channel_list] if channel_list is not None else ['red', 'green', 'blue', 'ir', 'swir1', 'swir2']
+
+        self.channel_folder = {'red': 'rgb', 'green': 'rgb', 'blue': 'rgb',
+                          'swir1':'swir1',
+                          'swir2':'swir2',
+                          'nir':'nir'}
+        if not select:
+            sub_dirs = next(os.walk(root_path))[1]
+            select = [k for k,v in self.channel_folder.items() if v in sub_dirs]
+
+        self.channels = [c.lower() for c in select]
         self.nb_layers = len(self.channels)
 
     def __getitem__(self, item):
@@ -226,15 +235,11 @@ class JpegPatchProvider(PatchProvider):
         # folders that contain patches
         sub_folder_1 = id_[-2:]
         sub_folder_2 = id_[-4:-2]
-        channel_folder = {'red': 'rgb', 'green': 'rgb', 'blue': 'rgb',
-                          'swir1':'swir1',
-                          'swir2':'swir2',
-                          'ir':'nir', 'nir':'nir'}
         list_tensor = {'order': [], 'tensors':[]}
 
         for channel in self.channels:
             if channel not in list_tensor['order']:
-                path = os.path.join(self.root_path, channel_folder[channel], sub_folder_1, sub_folder_2, id_+self.ext)
+                path = os.path.join(self.root_path, self.channel_folder[channel], sub_folder_1, sub_folder_2, id_+self.ext)
                 try:
                     img = np.asarray(Image.open(path))
                     if set(['red','green','blue']).issubset(self.channels) and channel in ['red','green','blue']:
@@ -272,14 +277,11 @@ class JpegPatchProvider(PatchProvider):
 
     
 if __name__ == "__main__":
-    p = RasterProvider('bio2.tif', size=256)
-    p.plot_patch((43.6, 3.8))
+    p1 = RasterPatchProvider('bio2.tif', size=256)
+    p1.plot_patch({'latitude':43.6, 'longitude':3.8})
 
-    # pp = MultipleRasterProvider('data/', size=256)
-    # pp.plot_patch({'gps':(43.6, 3.8)})
+    p2 = MultipleRasterPatchProvider('data/', size=256)
+    p2.plot_patch({'latitude':43.6, 'longitude':3.8})
 
-    # pp = MultipleRasterProvider('data/', select=['bio2', 'bio3'], size=256)
-    # for pid in [3010000, 3950000, 4330000, 6200000, 6570000]:
-    #     p = JpegPatchProvider('root_test_jpeg_provider', channel_list=['green', 'red','blue','swir1','nir'])
-    #     # a = p[{'plotID':str(pid)}]
-    #     p.plot_patch({'plotID':str(pid)})
+    p3 = JpegPatchProvider('data/patches/')
+    p3.plot_patch({'plotID':str(3010000)})
