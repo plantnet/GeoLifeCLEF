@@ -6,7 +6,7 @@ from data.GLC23Datasets import PatchesDataset
 data_path = './data/' # root path of the data
 
 # configure providers
-p_soil = MultipleRasterPatchProvider(data_path+'EnvironmentalRasters/Soilgrids/') # take all soilgris tif rasters
+p_soil = MultipleRasterPatchProvider(data_path+'EnvironmentalRasters/Soilgrids/') # take all soilgris rasters
 p_bioclim = MultipleRasterPatchProvider(data_path+'EnvironmentalRasters/Climate/BioClimatic_Average_1981-2010/', select=['bio1', 'bio7']) # take only bio1 and bio7 from bioclimatic rasters
 p_hfp = RasterPatchProvider(data_path+'EnvironmentalRasters/HumanFootprint/summarized/HFP2009_WGS84.tif') # take the human footprint 2009 summurized raster
 
