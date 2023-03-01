@@ -58,7 +58,7 @@ class PatchProvider(object):
             for i in range(self.nb_layers):
                 # display the layer on the corresponding subplot
                 axs[i].imshow(patch[i])
-                axs[i].set_title(self.bands_names[i])
+                axs[i].set_title('layer_{}: {}'.format(i, self.bands_names[i]))
                 axs[i].axis('off')
 
             # remove empty subplots
@@ -67,6 +67,28 @@ class PatchProvider(object):
 
         # show the plot
         plt.show()
+
+
+class MetaPatchProvider(PatchProvider):
+    def __init__(self, providers, transform=None):
+
+        self.providers = providers
+        self.nb_layers = sum([len(provider) for provider in self.providers])
+        self.bands_names = list(itertools.chain.from_iterable([provider.bands_names for provider in self.providers]))
+        self.transform = transform
+    
+    def __getitem__(self, item):
+        patch = np.concatenate([provider[item] for provider in self.providers])
+        if self.transform:
+            patch = self.transform(patch)
+        return patch
+    
+    def __str__(self):
+        result = 'Providers:\n'
+        for provider in self.providers:
+            result += str(provider)
+            result += '\n'
+        return result
 
 class RasterPatchProvider(PatchProvider):
     def __init__(self, raster_path, size=64, spatial_noise=0, normalize=False, fill_zero_if_error=False):
@@ -177,6 +199,7 @@ class MultipleRasterPatchProvider(PatchProvider):
         result = 'Rasters in folder:\n'
         for raster in self.rasters_providers:
             result += str(raster)
+            result += '\n'
         return result
    
 class JpegPatchProvider(PatchProvider):
