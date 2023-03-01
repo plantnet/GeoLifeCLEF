@@ -109,15 +109,15 @@ class RasterPatchProvider(PatchProvider):
 
     def __getitem__(self, item):
         """
-        :param item: dictionary that needs to contains at least the keys latitude and longitude ({'latitude': lat, 'longitude':lon})
+        :param item: dictionary that needs to contains at least the keys latitude and longitude ({'lat': lat, 'lon':lon})
         :return: return the environmental tensor or vector (size>1 or size=1)
         """
         
         # convert the lat, lon coordinates to EPSG:32738
         if self.transformer:
-            lon, lat = self.transformer.transform(item['longitude'], item['latitude'][0])
+            lon, lat = self.transformer.transform(item['lon'], item['lat'][0])
         else:
-            lon, lat = (item['longitude'], item['latitude'])
+            lon, lat = (item['lon'], item['lat'])
 
         # add noise as data augmentation
         if self.spatial_noise > 0:
