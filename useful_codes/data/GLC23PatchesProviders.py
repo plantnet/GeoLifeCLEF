@@ -8,6 +8,7 @@
 import logging
 import math
 import os
+import itertools
 from random import random
 
 from abc import abstractmethod
@@ -57,7 +58,7 @@ class PatchProvider(object):
             for i in range(self.nb_layers):
                 # display the layer on the corresponding subplot
                 axs[i].imshow(patch[i])
-                axs[i].set_title(f'Layer {i+1}')
+                axs[i].set_title(self.bands_names[i])
                 axs[i].axis('off')
 
             # remove empty subplots
@@ -73,6 +74,7 @@ class RasterPatchProvider(PatchProvider):
         self.spatial_noise = spatial_noise
         self.fill_zero_if_error = fill_zero_if_error
         self.transformer = None
+        self.name = os.path.basename(os.path.splitext(raster_path)[0])
 
         # open the tif file with rasterio
         with rasterio.open(raster_path) as src:
@@ -100,6 +102,10 @@ class RasterPatchProvider(PatchProvider):
             self.n_rows = src.height
             self.n_cols = src.width
             self.crs = src.crs
+        if self.nb_layers > 1:
+            self.bands_names = [self.name+'_'+str(i+1) for i in range(self.nb_layers)]
+        else:
+            self.bands_names = [self.name]
         
         self.epsg = self.crs.to_epsg()
         if self.epsg != 4326:
@@ -151,7 +157,7 @@ class RasterPatchProvider(PatchProvider):
         result += '-' * 50
         return result
 
-class MultipleRasterPatchProvider(object):
+class MultipleRasterPatchProvider(PatchProvider):
     def __init__(self, rasters_folder, select=None, size=64, spatial_noise=0, normalize=False, fill_zero_if_error=False):
         files = os.listdir(rasters_folder)
         # Filter files to include only those with .tif extension
@@ -162,6 +168,7 @@ class MultipleRasterPatchProvider(object):
 
         self.rasters_providers = [RasterPatchProvider(rasters_folder+path, size=size, spatial_noise=spatial_noise, normalize=normalize, fill_zero_if_error=fill_zero_if_error) for path in rasters_paths]
         self.nb_layers = sum([len(raster) for raster in self.rasters_providers])
+        self.bands_names = list(itertools.chain.from_iterable([raster.bands_names for raster in self.rasters_providers]))
     
     def __getitem__(self, item):
         return np.concatenate([raster[item] for raster in self.rasters_providers])
@@ -171,9 +178,6 @@ class MultipleRasterPatchProvider(object):
         for raster in self.rasters_providers:
             result += str(raster)
         return result
-    
-    def __len__(self):
-        return sum([len(raster) for raster in self.rasters_providers])
    
 class JpegPatchProvider(PatchProvider):
     """JPEG patches provider for GLC23.
@@ -209,28 +213,29 @@ class JpegPatchProvider(PatchProvider):
 
         self.channels = [c.lower() for c in select]
         self.nb_layers = len(self.channels)
+        self.bands_names = self.channels
 
     def __getitem__(self, item):
         """Return a tensor composed of every channels of a jpeg patch.
 
         Args:
-            item (dict): dictionnary containing the plotID necessary to 
+            item (dict): dictionnary containing the patchID necessary to 
                          identify the jpeg patch to return.
 
         Raises:
-            KeyError: the 'plotID' key is missing from item
+            KeyError: the 'patchID' key is missing from item
             Exception: item is not a dictionnary as expected
 
         Returns:
             (tensor): multi-channel patch tensor.
         """
         try:
-            id_ = str(item['plotID'])
+            id_ = str(item['patchID'])
         except KeyError as e:
-            raise KeyError('The plotID key does not exists.')
+            raise KeyError('The patchID key does not exists.')
         except Exception as e:
-            raise Exception('An error has occured when trying to load a patch plotID.'
-                            'Check that the input argument is a dict containing the "plotID" key.')
+            raise Exception('An error has occured when trying to load a patch patchID.'
+                            'Check that the input argument is a dict containing the "patchID" key.')
 
         # folders that contain patches
         sub_folder_1 = id_[-2:]
@@ -278,10 +283,10 @@ class JpegPatchProvider(PatchProvider):
     
 if __name__ == "__main__":
     p1 = RasterPatchProvider('bio2.tif', size=256)
-    p1.plot_patch({'latitude':43.6, 'longitude':3.8})
+    p1.plot_patch({'lat':43.6, 'lon':3.8})
 
     p2 = MultipleRasterPatchProvider('data/', size=256)
-    p2.plot_patch({'latitude':43.6, 'longitude':3.8})
+    p2.plot_patch({'lat':43.6, 'lon':3.8})
 
     p3 = JpegPatchProvider('data/patches/')
-    p3.plot_patch({'plotID':str(3010000)})
+    p3.plot_patch({'patchID':str(3010000)})
