@@ -109,15 +109,15 @@ class RasterProvider(PatchProvider):
 
     def __getitem__(self, item):
         """
-        :param item: the GPS location (latitude, longitude)
+        :param item: the GPS location {'gps':(latitude, longitude)}
         :return: return the environmental tensor or vector (size>1 or size=1)
         """
         
         # convert the lat, lon coordinates to EPSG:32738
         if self.transformer:
-            lon, lat = self.transformer.transform(item[1], item[0])
+            lon, lat = self.transformer.transform(item['gps'][1], item['gps'][0])
         else:
-            lon, lat = (item[1], item[0])
+            lon, lat = (item['gps'][1], item['gps'][0])
 
         # add noise as data augmentation
         if self.spatial_noise > 0:
@@ -151,7 +151,6 @@ class RasterProvider(PatchProvider):
         result += '-' * 50
         return result
 
-
 class MultipleRasterProvider(object):
     def __init__(self, rasters_folder, select=None, size=64, spatial_noise=0, normalize=False, fill_zero_if_error=False):
         files = os.listdir(rasters_folder)
@@ -175,8 +174,7 @@ class MultipleRasterProvider(object):
     
     def __len__(self):
         return sum([len(raster) for raster in self.rasters_providers])
-    
-
+   
 class JpegPatchProvider(PatchProvider):
     """JPEG patches provider for GLC23.
     
@@ -278,7 +276,7 @@ if __name__ == "__main__":
     p.plot_patch((43.6, 3.8))
 
     # pp = MultipleRasterProvider('data/', size=256)
-    # pp.plot_patch((43.6, 3.8))
+    # pp.plot_patch({'gps':(43.6, 3.8)})
 
     # pp = MultipleRasterProvider('data/', select=['bio2', 'bio3'], size=256)
     # for pid in [3010000, 3950000, 4330000, 6200000, 6570000]:
