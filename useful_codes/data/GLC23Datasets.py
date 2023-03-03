@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
-from GLC23PatchesProviders import MetaPatchProvider
+from data.GLC23PatchesProviders import MetaPatchProvider
 
 
 class PatchesDataset(Dataset):
