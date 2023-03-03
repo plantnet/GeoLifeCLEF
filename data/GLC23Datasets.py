@@ -1,3 +1,10 @@
+# Author: Benjamin Deneu <benjamin.deneu@inria.fr>
+#         Theo Larcher <theo.larcher@inria.fr>
+#
+# License: GPLv3
+#
+# Python version: 3.10.6
+
 from pathlib import Path
 import numpy as np
 import pandas as pd
