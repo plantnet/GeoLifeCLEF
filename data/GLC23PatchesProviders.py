@@ -91,7 +91,7 @@ class MetaPatchProvider(PatchProvider):
         return result
 
 class RasterPatchProvider(PatchProvider):
-    def __init__(self, raster_path, size=64, spatial_noise=0, normalize=False, fill_zero_if_error=False):
+    def __init__(self, raster_path, size=128, spatial_noise=0, normalize=False, fill_zero_if_error=False):
         super().__init__(size, normalize)
         self.spatial_noise = spatial_noise
         self.fill_zero_if_error = fill_zero_if_error
@@ -180,7 +180,7 @@ class RasterPatchProvider(PatchProvider):
         return result
 
 class MultipleRasterPatchProvider(PatchProvider):
-    def __init__(self, rasters_folder, select=None, size=64, spatial_noise=0, normalize=False, fill_zero_if_error=False):
+    def __init__(self, rasters_folder, select=None, size=128, spatial_noise=0, normalize=False, fill_zero_if_error=False):
         files = os.listdir(rasters_folder)
         # Filter files to include only those with .tif extension
         rasters_paths = [f for f in files if f.endswith('.tif')]
@@ -253,7 +253,7 @@ class JpegPatchProvider(PatchProvider):
             (tensor): multi-channel patch tensor.
         """
         try:
-            id_ = str(item['patchID'])
+            id_ = str(int(item['patchID']))
         except KeyError as e:
             raise KeyError('The patchID key does not exists.')
         except Exception as e:
