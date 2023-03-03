@@ -20,7 +20,7 @@ class PatchesDataset(Dataset):
         item_columns=['lat', 'lon', 'patchID'],
     ):
         self.occurences = Path(occurrences)
-        self.base_providers = providers if type(providers) is list else [providers]
+        self.base_providers = providers
         self.transform = transform
         self.target_transform = target_transform
         self.provider = MetaPatchProvider(self.base_providers, self.transform)
