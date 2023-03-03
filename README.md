@@ -4,3 +4,4 @@ This repository is related to the GeoLifeCLEF challenge. The details of the chal
 
 In this repository you will find dataloaders, sample_data and example to help using the challenge's dataset.
 - In ``data/sample_data/`` you will find a small sample of the dataset to try codes and loaders.
+- ``example_patch_loading.ipynb`` and ``example_patch_loading.py`` give an example of pytorch dataset creation for CNN tensors taking into account different cases.

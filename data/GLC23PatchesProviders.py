@@ -42,7 +42,7 @@ class PatchProvider(object):
     def plot_patch(self, item):
         patch = self[item]
         if self.nb_layers==1:
-            plt.figure(figsize=(20, 20))
+            plt.figure(figsize=(10, 10))
             plt.imshow(patch[0])
         else:
             # calculate the number of rows and columns for the subplots grid
