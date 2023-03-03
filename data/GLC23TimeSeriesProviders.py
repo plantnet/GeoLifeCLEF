@@ -84,7 +84,7 @@ class TimeSeriesProvider(object):
                 k_provider = 0 if k_provider.shape[0] == 0 else k_provider[-1][0]
                 
                 eos_start_ind = np.where(ts_== self.eos_replace_value[i])[0]
-                eos_start_ind = eos_start_ind[0] if eos_start_ind != [] else ts_.shape[2]
+                eos_start_ind = eos_start_ind[0] if eos_start_ind != [] else ts_.shape[0]
                 # display the layer on the corresponding subplot
                 axs[i].plot(range(eos_start_ind), ts_[:eos_start_ind],
                                   '-.', c='blue', marker='+')
