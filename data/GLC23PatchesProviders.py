@@ -50,7 +50,7 @@ class PatchProvider(object):
             cols = int(math.ceil(self.nb_layers / rows))
 
             # create a figure with a grid of subplots
-            fig, axs = plt.subplots(rows, cols, figsize=(20, 20))
+            fig, axs = plt.subplots(rows, cols, figsize=(10, 10))
 
             # flatten the subplots array to easily access the subplots
             axs = axs.flatten()
@@ -66,7 +66,10 @@ class PatchProvider(object):
             for i in range(self.nb_layers, rows*cols):
                 fig.delaxes(axs[i])
 
+        plt.suptitle('Tensor for item: '+str(item), fontsize=16)
+
         # show the plot
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         plt.show()
 
 
@@ -183,11 +186,14 @@ class MultipleRasterPatchProvider(PatchProvider):
     def __init__(self, rasters_folder, select=None, size=128, spatial_noise=0, normalize=False, fill_zero_if_error=False):
         files = os.listdir(rasters_folder)
         # Filter files to include only those with .tif extension
-        rasters_paths = [f for f in files if f.endswith('.tif')]
+        #rasters_paths = [f for f in files if f.endswith('.tif')]
+        #if select:
+        #    select = [r+'.tif' for r in select]
+        #    rasters_paths = [r for r in rasters_paths if r in select]
         if select:
-            select = [r+'.tif' for r in select]
-            rasters_paths = [r for r in rasters_paths if r in select]
-
+            rasters_paths = [r+'.tif' for r in select]
+        else:
+            rasters_paths = [f for f in files if f.endswith('.tif')]
         self.rasters_providers = [RasterPatchProvider(rasters_folder+path, size=size, spatial_noise=spatial_noise, normalize=normalize, fill_zero_if_error=fill_zero_if_error) for path in rasters_paths]
         self.nb_layers = sum([len(raster) for raster in self.rasters_providers])
         self.bands_names = list(itertools.chain.from_iterable([raster.bands_names for raster in self.rasters_providers]))
