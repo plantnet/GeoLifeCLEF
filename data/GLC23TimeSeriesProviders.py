@@ -47,37 +47,63 @@ class TimeSeriesProvider(object):
         return self.nb_layers
     
     def plot_ts(self, item):
-        patch = self[item]
+        tss = self[item]
         if self.nb_layers==1:
-            eos_start_ind = np.where(patch[0,0]==self.eos_replace_value)[0][0]
             plt.figure(figsize=(20, 20))
-            plt.plot(range(eos_start_ind), patch[0,0,:eos_start_ind], '-.', c='blue', marker='+')
-            plt.plot(range(eos_start_ind, patch.shape[2]), patch[0,0,eos_start_ind:], '', c='red', marker='+')
-            plt.title(item)
-            #plt.xticks(patch[0], )
+            ts_ = tss
+            eos_start_ind = np.where(ts_[0,0]==self.eos_replace_value)[0]
+            eos_start_ind = eos_start_ind[0] if eos_start_ind != [] else ts_.shape[2]
+            plt.plot(range(eos_start_ind), ts_[0,0,:eos_start_ind],
+                     '-.', c='blue', marker='+')
+            plt.plot(range(eos_start_ind, ts_.shape[2]), ts_[0,0,eos_start_ind:],
+                     '', c='red', marker='+')
+            plt.title(f'layer: {self.bands_names}\n{item}')
+            plt.xticks(list(range(ts_.shape[2]))[::4]+[ts_.shape[2]-1],
+                       self.features_col[0][::4]+[self.features_col[0][-1]],
+                       rotation='vertical')
+            plt.xlabel(f'Time (quarterly composites)')
+            plt.ylabel(f'Band composite value (uint8)')
+            plt.grid(True)
         else:
             # calculate the number of rows and columns for the subplots grid
             rows = int(math.ceil(math.sqrt(self.nb_layers)))
             cols = int(math.ceil(self.nb_layers / rows))
 
             # create a figure with a grid of subplots
-            fig, axs = plt.subplots(rows, cols, figsize=(20, 20))
+            fig, axs = plt.subplots(rows, cols, figsize=(10, 10))
 
             # flatten the subplots array to easily access the subplots
             axs = axs.flatten()
-
-            # loop through the layers of patch data
+            
+            lli = np.cumsum([0]+self.layers_length)
+            # loop through the layers of tss data
             for i in range(self.nb_layers):
+                ts_ = tss[0, i]
+                
+                k_provider = np.argwhere(i+1>lli)
+                k_provider = 0 if k_provider.shape[0] == 0 else k_provider[-1][0]
+                
+                eos_start_ind = np.where(ts_== self.eos_replace_value[i])[0]
+                eos_start_ind = eos_start_ind[0] if eos_start_ind != [] else ts_.shape[2]
                 # display the layer on the corresponding subplot
-                axs[i].plot(patch[i], '--', c='blue', marker='+')
-                axs[i].set_title('layer_{}: {}'.format(i, self.bands_names[i]))
-                axs[i].axis('off')
+                axs[i].plot(range(eos_start_ind), ts_[:eos_start_ind],
+                                  '-.', c='blue', marker='+')
+                axs[i].plot(range(eos_start_ind, ts_.shape[0]), ts_[eos_start_ind:],
+                                  '', c='red', marker='+')
+                axs[i].set_title(f'layer: {self.bands_names[i]}\n{item}')
+                axs[i].set_xticks(list(range(ts_.shape[0]))[::4]+[ts_.shape[0]-1],
+                                  self.features_col[k_provider][::4]+[self.features_col[k_provider][-1]],
+                                  rotation='vertical')
+                axs[i].set_xlabel(f'Time (quarterly composites)')
+                axs[i].set_ylabel(f'Band composite value (uint8)')
+                axs[i].grid(True)
 
             # remove empty subplots
             for i in range(self.nb_layers, rows*cols):
                 fig.delaxes(axs[i])
 
         # show the plot
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         plt.show()
         
 class MetaTimeSeriesProvider(TimeSeriesProvider):
@@ -85,11 +111,13 @@ class MetaTimeSeriesProvider(TimeSeriesProvider):
         self.providers = providers
         self.layers_length = [provider.nb_layers for provider in self.providers]
         self.nb_layers = sum(self.layers_length)
-        self.bands_names = [provider.bands_names for provider in self.providers]
+        self.bands_names = list(itertools.chain.from_iterable([provider.bands_names for provider in self.providers]))
         self.features_col = [provider.features_col for provider in self.providers]
         self.transform = transform
-        self.eos_replace_value = [provider.eos_replace_value for provider in self.providers]
-    
+        self.eos_replace_value = []
+        for provider, ll_ in zip(self.providers, self.layers_length):
+            self.eos_replace_value.extend([provider.eos_replace_value]*ll_)
+
     def __getitem__(self, item):
         patch = np.concatenate([provider[item] for provider in self.providers], axis=1)
         if self.transform:
@@ -110,21 +138,22 @@ class CSVTimeSeriesProvider(TimeSeriesProvider):
                  ts_id='timeSerieID',
                  features_col=[],
                  eos_replace_value=-1) -> None:
-        super().__init__(normalize)
+        super().__init__(ts_data_path, normalize)
         self.ts_id = ts_id
         self.ts_data_path = ts_data_path
-        self.ts_data = pd.read_csv(ts_data_path, sep=';', nrows=100).set_index(self.ts_id, drop=False)
+        self.ts_data = pd.read_csv(ts_data_path, sep=';').set_index(self.ts_id, drop=False)
         self.ts_data = self.ts_data.replace('eos', eos_replace_value).astype(np.int16)
         self.eos_replace_value = eos_replace_value
         self.max_sequence, self.min_sequence = self.get_min_max_sequence(eos_replace_value)
         self.nb_layers = 1
         if not features_col:
             self.features_col = list(self.ts_data.columns[1:])
-        elif len(set(features_col).intersection(self.ts_data.columns)) == len(self.ts_data.columns):
+        elif len(set(features_col).intersection(self.ts_data.columns)) == len(features_col):
             self.features_col = features_col
+            self.ts_data = self.ts_data[features_col]
         else:
             raise KeyError('Some values in `features_col` do not match the `ts_data` column names.')
-        self.bands_names = os.path.basename(os.path.splitext(ts_data_path)[0])
+        self.bands_names = [os.path.basename(os.path.splitext(ts_data_path)[0])]
             
     def get_min_max_sequence(self, eos_replace_value):
         min_seq = len(self.ts_data.columns)
@@ -153,6 +182,7 @@ class MultipleCSVTimeSeriesProvider(TimeSeriesProvider):
         super().__init__(root_path, normalize)
         self.root_path = root_path
         self.ts_id = ts_id
+        self.eos_replace_value = eos_replace_value
         self.select = [c.lower() for c in select]
         
         files = os.listdir(root_path)
@@ -165,9 +195,11 @@ class MultipleCSVTimeSeriesProvider(TimeSeriesProvider):
         self.ts_paths = ts_paths
         self.ts_providers = [CSVTimeSeriesProvider(root_path+path, normalize=normalize, ts_id=ts_id, features_col=features_col, eos_replace_value=eos_replace_value) for path in ts_paths]
         self.nb_layers = len(self.ts_providers)
-        self.bands_names = [ts_.bands_names for ts_ in self.ts_providers]
+        # self.bands_names = [ts_.bands_names for ts_ in self.ts_providers]
+        self.bands_names = list(itertools.chain.from_iterable([provider.bands_names for provider in self.ts_providers]))
         self.min_sequence = min(list(itertools.chain.from_iterable([[ts_.min_sequence] for ts_ in self.ts_providers])))
         self.max_sequence = max(list(itertools.chain.from_iterable([[ts_.max_sequence] for ts_ in self.ts_providers])))
+        self.features_col = self.ts_providers[0].features_col
         
     def __getitem__(self, item):
         return np.concatenate([ts_[item] for ts_ in self.ts_providers], axis=1)
