@@ -19,9 +19,10 @@ from sklearn.model_selection import train_test_split
 
 
 class TimeSeriesProvider(object):
-    def __init__(self, root_path, normalize=False) -> None:
+    def __init__(self, root_path, normalize=False, transform=None) -> None:
         self.root_path = root_path
         self.normalize = normalize
+        self.transform = transform
         self.nb_layers = 0
         self.min_sequence = 0
         self.max_sequence = 0
@@ -137,8 +138,9 @@ class CSVTimeSeriesProvider(TimeSeriesProvider):
                  normalize=False,
                  ts_id='timeSerieID',
                  features_col=[],
-                 eos_replace_value=-1) -> None:
-        super().__init__(ts_data_path, normalize)
+                 eos_replace_value=-1,
+                 transform=None) -> None:
+        super().__init__(ts_data_path, normalize, transform)
         self.ts_id = ts_id
         self.ts_data_path = ts_data_path
         self.ts_data = pd.read_csv(ts_data_path, sep=';').set_index(self.ts_id, drop=False)
@@ -165,12 +167,14 @@ class CSVTimeSeriesProvider(TimeSeriesProvider):
         # coordinates must be GPS-like, in the 4326 CRS
         tensor = np.array([self.ts_data.loc[item[self.ts_id], self.features_col]])
         tensor = np.expand_dims(tensor, axis=0)
+        if self.transform:
+            for transform in self.transform:
+                tensor = transform(tensor)
         return tensor
     
     def __len__(self):
         return self.max_sequence
-
-    
+   
 class MultipleCSVTimeSeriesProvider(TimeSeriesProvider):
     # Be careful not to place the label .csv with the data .csv and leaving select=None as the provider would then list all .csv files as data including the label file.
     def __init__(self, root_path,
@@ -178,8 +182,9 @@ class MultipleCSVTimeSeriesProvider(TimeSeriesProvider):
                  normalize=False,
                  ts_id='timeSerieID',
                  features_col=[],
-                 eos_replace_value=-1) -> None:
-        super().__init__(root_path, normalize)
+                 eos_replace_value=-1,
+                 transform=None) -> None:
+        super().__init__(root_path, normalize, transform)
         self.root_path = root_path
         self.ts_id = ts_id
         self.eos_replace_value = eos_replace_value
@@ -193,7 +198,7 @@ class MultipleCSVTimeSeriesProvider(TimeSeriesProvider):
             if len(ts_paths)!=len(select):
                 logging.warn(f'Could not find all files based on `select`. Loading only the ones which names match... (see the `ts_paths` attribute for the complete list)')
         self.ts_paths = ts_paths
-        self.ts_providers = [CSVTimeSeriesProvider(root_path+path, normalize=normalize, ts_id=ts_id, features_col=features_col, eos_replace_value=eos_replace_value) for path in ts_paths]
+        self.ts_providers = [CSVTimeSeriesProvider(root_path+path, normalize=normalize, ts_id=ts_id, features_col=features_col, eos_replace_value=eos_replace_value, transform=transform) for path in ts_paths]
         self.nb_layers = len(self.ts_providers)
         # self.bands_names = [ts_.bands_names for ts_ in self.ts_providers]
         self.bands_names = list(itertools.chain.from_iterable([provider.bands_names for provider in self.ts_providers]))

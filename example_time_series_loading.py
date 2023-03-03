@@ -3,20 +3,19 @@ import random
 from data.GLC23TimeSeriesProviders import MultipleCSVTimeSeriesProvider, CSVTimeSeriesProvider
 from data.GLC23Datasets import TimeSeriesDataset
 
-data_path = '/home/tlarcher/Documents/Pl@ntNet/Seafile/LIRMM - Malpolon/time_series/' # root path of the data
-
+data_path = '/home/tlarcher/Documents/Pl@ntNet/git/GLC/data/sample_data/' # root path of the data
 # configure providers
-ts_red = CSVTimeSeriesProvider(data_path+'time_series_red.csv')
-ts_multi = MultipleCSVTimeSeriesProvider(data_path, select=['red', 'blue'])
-ts_all = MultipleCSVTimeSeriesProvider(data_path)
+ts_red = CSVTimeSeriesProvider(data_path+'TimeSeries/time_series_red.csv')
+ts_multi = MultipleCSVTimeSeriesProvider(data_path+'TimeSeries/', select=['red', 'blue'])
+ts_all = MultipleCSVTimeSeriesProvider(data_path+'TimeSeries/')
 
 # create dataset
-dataset = TimeSeriesDataset(occurrences=data_path+'../src/PO_anonymised_filtered.csv', providers=(ts_red))
+dataset = TimeSeriesDataset(occurrences=data_path+'Presence_only_occurrences/Presences_only_train_sample.csv',
+                            providers=[ts_red, ts_multi, ts_all])
 
 
 # print random tensors from dataset
-#ids = [random.randint(0, len(dataset)) for i in range(10)]
-ids = range(10)
+ids = [random.randint(0, len(dataset)-1) for i in range(5)]
 for id in ids:
     tensor = dataset[id][0]
     label = dataset[id][1]
