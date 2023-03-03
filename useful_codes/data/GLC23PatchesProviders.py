@@ -5,18 +5,19 @@
 #
 # Python version: 3.10.6
 
+import itertools
 import logging
 import math
 import os
-import itertools
+from abc import abstractmethod
 from random import random
 
-from abc import abstractmethod
 import matplotlib.pyplot as plt
 import numpy as np
 import pyproj
 import rasterio
 from PIL import Image
+
 
 class PatchProvider(object):
     def __init__(self, size, normalize) -> None:
@@ -71,7 +72,6 @@ class PatchProvider(object):
 
 class MetaPatchProvider(PatchProvider):
     def __init__(self, providers, transform=None):
-
         self.providers = providers
         self.nb_layers = sum([len(provider) for provider in self.providers])
         self.bands_names = list(itertools.chain.from_iterable([provider.bands_names for provider in self.providers]))
@@ -208,8 +208,8 @@ class JpegPatchProvider(PatchProvider):
     Provides tensors of multi-modal patches from JPEG patch files
     of rasters of the GLC23 challenge.
 
-    Args:
-        object (object): object class.
+    Attributes:
+        PatchProvider (_type_): _description_
     """
     def __init__(self, root_path, select=None, normalize=False, patch_transform=None, size=128):
         """Class constructor.
@@ -302,14 +302,3 @@ class JpegPatchProvider(PatchProvider):
         result += 'n_cols: ' + str(self.n_cols) + '\n'
         result += '-' * 50
         return result
-
-    
-if __name__ == "__main__":
-    p1 = RasterPatchProvider('bio2.tif', size=256)
-    p1.plot_patch({'lat':43.6, 'lon':3.8})
-
-    p2 = MultipleRasterPatchProvider('data/', size=256)
-    p2.plot_patch({'lat':43.6, 'lon':3.8})
-
-    p3 = JpegPatchProvider('data/patches/')
-    p3.plot_patch({'patchID':str(3010000)})

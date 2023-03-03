@@ -3,8 +3,10 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
-from data.GLC23PatchesProviders import MetaPatchProvider
+import os
 
+from data.GLC23PatchesProviders import MetaPatchProvider
+from data.GLC23TimeSeriesProviders import MetaTimeSeriesProvider
 
 class PatchesDataset(Dataset):
     def __init__(
@@ -18,7 +20,7 @@ class PatchesDataset(Dataset):
         item_columns=['lat', 'lon', 'patchID'],
     ):
         self.occurences = Path(occurrences)
-        self.base_providers = providers
+        self.base_providers = providers if type(providers) is list else [providers]
         self.transform = transform
         self.target_transform = target_transform
         self.provider = MetaPatchProvider(self.base_providers, self.transform)
@@ -58,7 +60,7 @@ class PatchesDatasetOld(Dataset):
         target_transform=None,
         id_name="glcID",
         label_name="speciesId",
-        item_columns=('lat', 'lon', 'patchID'),
+        item_columns=['lat', 'lon', 'patchID'],
     ):
         self.occurences = Path(occurrences)
         self.providers = providers
@@ -96,3 +98,46 @@ class PatchesDatasetOld(Dataset):
             target = self.target_transform(target)
 
         return torch.from_numpy(patches).float(), target
+
+class TimeSeriesDataset(Dataset):
+    def __init__(
+        self,
+        occurrences,
+        providers,
+        transform=None,
+        target_transform=None,
+        id_name="glcID",
+        label_name="speciesId",
+        item_columns=['timeSerieID'],
+    ):
+        self.occurences = Path(occurrences)
+        self.base_providers = providers if type(providers) is list else [providers]
+        self.transform = transform
+        self.target_transform = target_transform
+        self.provider = MetaTimeSeriesProvider(self.base_providers, self.transform)
+
+        df = pd.read_csv(self.occurences, sep=";", header='infer', low_memory=False, nrows=100) # suppr nrows
+        df['timeSerieID'] = list(range(1000,1100)) # à suppr
+
+        self.observation_ids = df[id_name].values
+        self.items = df[item_columns]
+        self.targets = df[label_name].values
+    
+    def __len__(self):
+        return len(self.observation_ids)
+
+    def __getitem__(self, index):
+        item = self.items.iloc[index].to_dict()
+
+        patch = self.provider[item]
+
+        target = self.targets[index]
+
+        if self.target_transform:
+            target = self.target_transform(target)
+
+        return torch.from_numpy(patch).float(), target
+
+    def plot_ts(self, index):
+        item = self.items.iloc[index].to_dict()
+        self.provider.plot_ts(item)
