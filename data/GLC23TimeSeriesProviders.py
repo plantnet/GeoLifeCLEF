@@ -103,9 +103,7 @@ class TimeSeriesProvider(object):
                 fig.delaxes(axs[i])
 
         # show the plot
-        #plt.subplots_adjust(hspace=0.5)
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-        #plt.grid(True)
         plt.show()
         
 class MetaTimeSeriesProvider(TimeSeriesProvider):
@@ -143,7 +141,7 @@ class CSVTimeSeriesProvider(TimeSeriesProvider):
         super().__init__(ts_data_path, normalize)
         self.ts_id = ts_id
         self.ts_data_path = ts_data_path
-        self.ts_data = pd.read_csv(ts_data_path, sep=';', nrows=100).set_index(self.ts_id, drop=False)
+        self.ts_data = pd.read_csv(ts_data_path, sep=';').set_index(self.ts_id, drop=False)
         self.ts_data = self.ts_data.replace('eos', eos_replace_value).astype(np.int16)
         self.eos_replace_value = eos_replace_value
         self.max_sequence, self.min_sequence = self.get_min_max_sequence(eos_replace_value)

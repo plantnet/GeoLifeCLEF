@@ -123,8 +123,7 @@ class TimeSeriesDataset(Dataset):
         self.target_transform = target_transform
         self.provider = MetaTimeSeriesProvider(self.base_providers, self.transform)
 
-        df = pd.read_csv(self.occurences, sep=";", header='infer', low_memory=False, nrows=100) # suppr nrows
-        df['timeSerieID'] = list(range(1000,1100)) # à suppr
+        df = pd.read_csv(self.occurences, sep=";", header='infer', low_memory=False)
 
         self.observation_ids = df[id_name].values
         self.items = df[item_columns]
