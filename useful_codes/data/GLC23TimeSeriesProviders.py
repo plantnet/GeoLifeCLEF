@@ -47,46 +47,46 @@ class TimeSeriesProvider(object):
         return self.nb_layers
     
     def plot_ts(self, item):
-        # patch = self[item]
-        # if self.nb_layers==1:
-        #     eos_start_ind = np.where(patch[0,0]==self.eos_replace_value)[0][0]
-        #     plt.figure(figsize=(20, 20))
-        #     plt.plot(range(eos_start_ind), patch[0,0,:eos_start_ind], '-.', c='blue', marker='+')
-        #     plt.plot(range(eos_start_ind-1, patch.shape[2]), patch[0,0,eos_start_ind-1:], '', c='red', marker=['']+['+']*(patch.shape[2]-(eos_start_ind-1)))
-        #     plt.title(item)
-        #     #plt.xticks(patch[0], )
-        # else:
-        #     # calculate the number of rows and columns for the subplots grid
-        #     rows = int(math.ceil(math.sqrt(self.nb_layers)))
-        #     cols = int(math.ceil(self.nb_layers / rows))
+        patch = self[item]
+        if self.nb_layers==1:
+            eos_start_ind = np.where(patch[0,0]==self.eos_replace_value)[0][0]
+            plt.figure(figsize=(20, 20))
+            plt.plot(range(eos_start_ind), patch[0,0,:eos_start_ind], '-.', c='blue', marker='+')
+            plt.plot(range(eos_start_ind, patch.shape[2]), patch[0,0,eos_start_ind:], '', c='red', marker='+')
+            plt.title(item)
+            #plt.xticks(patch[0], )
+        else:
+            # calculate the number of rows and columns for the subplots grid
+            rows = int(math.ceil(math.sqrt(self.nb_layers)))
+            cols = int(math.ceil(self.nb_layers / rows))
 
-        #     # create a figure with a grid of subplots
-        #     fig, axs = plt.subplots(rows, cols, figsize=(20, 20))
+            # create a figure with a grid of subplots
+            fig, axs = plt.subplots(rows, cols, figsize=(20, 20))
 
-        #     # flatten the subplots array to easily access the subplots
-        #     axs = axs.flatten()
+            # flatten the subplots array to easily access the subplots
+            axs = axs.flatten()
 
-        #     # loop through the layers of patch data
-        #     for i in range(self.nb_layers):
-        #         # display the layer on the corresponding subplot
-        #         axs[i].plot(patch[i], '--', c='blue', marker='+')
-        #         axs[i].set_title('layer_{}: {}'.format(i, self.bands_names[i]))
-        #         axs[i].axis('off')
+            # loop through the layers of patch data
+            for i in range(self.nb_layers):
+                # display the layer on the corresponding subplot
+                axs[i].plot(patch[i], '--', c='blue', marker='+')
+                axs[i].set_title('layer_{}: {}'.format(i, self.bands_names[i]))
+                axs[i].axis('off')
 
-        #     # remove empty subplots
-        #     for i in range(self.nb_layers, rows*cols):
-        #         fig.delaxes(axs[i])
+            # remove empty subplots
+            for i in range(self.nb_layers, rows*cols):
+                fig.delaxes(axs[i])
 
-        # # show the plot
-        # plt.show()
-        pass
-
+        # show the plot
+        plt.show()
+        
 class MetaTimeSeriesProvider(TimeSeriesProvider):
     def __init__(self, providers, transform=None):
         self.providers = providers
         self.layers_length = [provider.nb_layers for provider in self.providers]
         self.nb_layers = sum(self.layers_length)
         self.bands_names = [provider.bands_names for provider in self.providers]
+        self.features_col = [provider.features_col for provider in self.providers]
         self.transform = transform
         self.eos_replace_value = [provider.eos_replace_value for provider in self.providers]
     

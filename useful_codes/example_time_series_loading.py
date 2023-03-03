@@ -15,7 +15,8 @@ dataset = TimeSeriesDataset(occurrences=data_path+'../src/PO_anonymised_filtered
 
 
 # print random tensors from dataset
-ids = [random.randint(0, len(dataset)) for i in range(10)]
+#ids = [random.randint(0, len(dataset)) for i in range(10)]
+ids = range(10)
 for id in ids:
     tensor = dataset[id][0]
     label = dataset[id][1]
