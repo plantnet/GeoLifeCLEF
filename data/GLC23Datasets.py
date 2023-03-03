@@ -118,7 +118,7 @@ class TimeSeriesDataset(Dataset):
         item_columns=['timeSerieID'],
     ):
         self.occurences = Path(occurrences)
-        self.base_providers = providers if type(providers) is list else [providers]
+        self.base_providers = providers
         self.transform = transform
         self.target_transform = target_transform
         self.provider = MetaTimeSeriesProvider(self.base_providers, self.transform)
