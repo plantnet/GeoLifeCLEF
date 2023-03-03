@@ -3,15 +3,15 @@ import random
 from data.GLC23PatchesProviders import MultipleRasterPatchProvider, RasterPatchProvider
 from data.GLC23Datasets import PatchesDataset
 
-data_path = './data/' # root path of the data
+data_path = 'data/sample_data/' # root path of the data
 
 # configure providers
-p_soil = MultipleRasterPatchProvider(data_path+'EnvironmentalRasters/Soilgrids/') # take all soilgris rasters
-p_bioclim = MultipleRasterPatchProvider(data_path+'EnvironmentalRasters/Climate/BioClimatic_Average_1981-2010/', select=['bio1', 'bio7']) # take only bio1 and bio7 from bioclimatic rasters
+p_hfp_d = MultipleRasterPatchProvider(data_path+'EnvironmentalRasters/HumanFootprint/detailed/') # take all rasters
+p_bioclim = MultipleRasterPatchProvider(data_path+'EnvironmentalRasters/Climate/BioClimatic_Average_1981-2010/', select=['bio1', 'bio2']) # take only bio1 and bio2 from bioclimatic rasters
 p_hfp = RasterPatchProvider(data_path+'EnvironmentalRasters/HumanFootprint/summarized/HFP2009_WGS84.tif') # take the human footprint 2009 summurized raster
 
 # create dataset
-dataset = PatchesDataset(occurrences=data_path+'Presence_only_occurrences/PO_anonymised_filtered.csv', providers=(p_soil, p_bioclim, p_hfp))
+dataset = PatchesDataset(occurrences=data_path+'Presence_only_occurrences/PO_anonymised_filtered.csv', providers=(p_hfp_d, p_bioclim, p_hfp))
 
 
 # print random tensors from dataset
