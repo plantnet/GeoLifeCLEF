@@ -94,12 +94,13 @@ class MetaPatchProvider(PatchProvider):
         return result
 
 class RasterPatchProvider(PatchProvider):
-    def __init__(self, raster_path, size=128, spatial_noise=0, normalize=False, fill_zero_if_error=False):
+    def __init__(self, raster_path, size=128, spatial_noise=0, normalize=False, fill_zero_if_error=False, nan_value=0):
         super().__init__(size, normalize)
         self.spatial_noise = spatial_noise
         self.fill_zero_if_error = fill_zero_if_error
         self.transformer = None
         self.name = os.path.basename(os.path.splitext(raster_path)[0])
+        self.normalize = normalize
 
         # open the tif file with rasterio
         with rasterio.open(raster_path) as src:
@@ -117,6 +118,10 @@ class RasterPatchProvider(PatchProvider):
             for i in range(src.count):
                 # replace the NoData values with np.nan
                 self.data[i] = np.where(self.data[i] == self.nodata_value[i], np.nan, self.data[i])
+                if self.normalize:
+                    # TODO: debug standardization formula (not working !) put normalize tu true by default after that
+                    self.data[i] = (self.data[i] - np.nanmean(self.data[i]))/np.nanstd(self.data[i])
+                self.data[i] = np.where(np.isnan(self.data[i]), nan_value, self.data[i])
             
             self.nb_layers = src.count
 
@@ -217,7 +222,7 @@ class JpegPatchProvider(PatchProvider):
     Attributes:
         PatchProvider (_type_): _description_
     """
-    def __init__(self, root_path, select=None, normalize=False, patch_transform=None, size=128):
+    def __init__(self, root_path, select=None, normalize=True, patch_transform=None, size=128):
         """Class constructor.
 
         Args:
