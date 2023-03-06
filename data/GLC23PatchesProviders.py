@@ -94,7 +94,7 @@ class MetaPatchProvider(PatchProvider):
         return result
 
 class RasterPatchProvider(PatchProvider):
-    def __init__(self, raster_path, size=128, spatial_noise=0, normalize=False, fill_zero_if_error=False, nan_value=0):
+    def __init__(self, raster_path, size=128, spatial_noise=0, normalize=True, fill_zero_if_error=False, nan_value=0):
         super().__init__(size, normalize)
         self.spatial_noise = spatial_noise
         self.fill_zero_if_error = fill_zero_if_error
@@ -117,9 +117,9 @@ class RasterPatchProvider(PatchProvider):
             # iterate through all the layers
             for i in range(src.count):
                 # replace the NoData values with np.nan
+                self.data = self.data.astype(np.float)
                 self.data[i] = np.where(self.data[i] == self.nodata_value[i], np.nan, self.data[i])
                 if self.normalize:
-                    # TODO: debug standardization formula (not working !) put normalize tu true by default after that
                     self.data[i] = (self.data[i] - np.nanmean(self.data[i]))/np.nanstd(self.data[i])
                 self.data[i] = np.where(np.isnan(self.data[i]), nan_value, self.data[i])
             
@@ -188,7 +188,7 @@ class RasterPatchProvider(PatchProvider):
         return result
 
 class MultipleRasterPatchProvider(PatchProvider):
-    def __init__(self, rasters_folder, select=None, size=128, spatial_noise=0, normalize=False, fill_zero_if_error=False):
+    def __init__(self, rasters_folder, select=None, size=128, spatial_noise=0, normalize=True, fill_zero_if_error=False):
         files = os.listdir(rasters_folder)
         # Filter files to include only those with .tif extension
         #rasters_paths = [f for f in files if f.endswith('.tif')]
