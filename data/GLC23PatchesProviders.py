@@ -17,6 +17,9 @@ import numpy as np
 import pyproj
 import rasterio
 from PIL import Image
+import pandas as pd
+
+import data.get_jpeg_patches_mean_std as jpms
 
 
 class PatchProvider(object):
@@ -222,7 +225,7 @@ class JpegPatchProvider(PatchProvider):
     Attributes:
         PatchProvider (_type_): _description_
     """
-    def __init__(self, root_path, select=None, normalize=True, patch_transform=None, size=128):
+    def __init__(self, root_path, select=None, normalize=True, patch_transform=None, size=128, dataset_stats='jpeg_patches_stats.csv'):
         """Class constructor.
 
         Args:
@@ -231,11 +234,16 @@ class JpegPatchProvider(PatchProvider):
             normalize (bool, optional): normalize data. Defaults to False.
             patch_transform (callable, optional): custom transformation functions. Defaults to None.
             size (int, optional): default tensor sizes (must match patch sizes). Defaults to 128.
+            dataset_stats (str, optional): path to the csv file containing the mean and std values of the
+                                           jpeg patches dataset if `normalize` is True. If the file doesn't
+                                           exist, the values will be calculated and the file will be created once.
+                                           Defaults to 'jpeg_patches_stats.csv'
         """
         super().__init__(size, normalize)
         self.patch_transform = patch_transform
         self.root_path = root_path
         self.ext = '.jpeg'
+        self.dataset_stats = os.path.join(self.root_path, dataset_stats)
 
         self.channel_folder = {'red': 'rgb', 'green': 'rgb', 'blue': 'rgb',
                           'swir1':'swir1',
@@ -294,7 +302,12 @@ class JpegPatchProvider(PatchProvider):
                     img = np.zeros((1, self.patch_size, self.patch_size))
                     list_tensor['order'].append(channel)
                 if self.normalize:
-                    img = img/255.0
+                    if os.path.isfile(self.dataset_stats):
+                        df = pd.read_csv(self.dataset_stats, sep=';')
+                        mean, std = df.loc[0, 'mean'], df.loc[0, 'std']
+                    else:
+                        mean, std = jpms.standardize(self.root_path, [self.ext], output=self.dataset_stats)
+                    img = (img-mean)/std
                 for depth in img:
                     list_tensor['tensors'].append(np.expand_dims(depth, axis=0))
         tensor = np.concatenate(list_tensor['tensors'])
