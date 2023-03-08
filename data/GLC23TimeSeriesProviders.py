@@ -10,12 +10,10 @@ import logging
 import math
 import os
 from abc import abstractmethod
-from logging import warning
 
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from sklearn.model_selection import train_test_split
 
 
 class TimeSeriesProvider(object):
