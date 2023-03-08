@@ -58,6 +58,35 @@ class PatchesDataset(Dataset):
         self.provider.plot_patch(item)
 
 
+class PatchesDatasetMultiLabel(PatchesDataset):
+    def __init__(self,
+        occurrences,
+        providers,
+        transform=None,
+        target_transform=None,
+        id_name="glcID",
+        label_name="speciesId",
+        item_columns=['lat', 'lon', 'patchID']
+    ):
+        super().__init__(occurrences, providers, transform, target_transform, id_name, label_name, item_columns)
+        
+    def __getitem__(self, index):
+        item = self.items.iloc[index].to_dict()
+        patchid_rows_i = self.items[self.items['patchID']==item['patchID']].index
+        self.targets_sorted = np.sort(self.targets)
+
+        patch = self.provider[item]
+
+        targets = np.zeros(len(self.targets))
+        for idx in patchid_rows_i:
+            target = self.targets[idx]
+            if self.target_transform:
+                target = self.target_transform(target)
+            targets[np.where(self.targets_sorted==target)] = 1
+        targets = torch.from_numpy(targets)
+
+        return torch.from_numpy(patch).float(), targets
+
 class PatchesDatasetOld(Dataset):
     def __init__(
         self,
