@@ -19,7 +19,7 @@ import rasterio
 from PIL import Image
 import pandas as pd
 
-from data.get_jpeg_patches_mean_std import jpeg_standardize
+from data.get_jpeg_patches_mean_std import standardize as jpeg_standardize
 
 
 class PatchProvider(object):
