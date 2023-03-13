@@ -19,7 +19,7 @@ import rasterio
 from PIL import Image
 import pandas as pd
 
-import data.get_jpeg_patches_mean_std as jpms
+from data.get_jpeg_patches_mean_std import jpeg_standardize
 
 
 class PatchProvider(object):
@@ -306,7 +306,7 @@ class JpegPatchProvider(PatchProvider):
                         df = pd.read_csv(self.dataset_stats, sep=';')
                         mean, std = df.loc[0, 'mean'], df.loc[0, 'std']
                     else:
-                        mean, std = jpms.standardize(self.root_path, [self.ext], output=self.dataset_stats)
+                        mean, std = jpeg_standardize(self.root_path, [self.ext], output=self.dataset_stats)
                     img = (img-mean)/std
                 for depth in img:
                     list_tensor['tensors'].append(np.expand_dims(depth, axis=0))
