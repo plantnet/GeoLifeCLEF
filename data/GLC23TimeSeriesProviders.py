@@ -58,7 +58,7 @@ class TimeSeriesProvider(object):
                      '', c='red', marker='+')
             plt.title(f'layer: {self.bands_names}\n{item}')
             plt.xticks(list(range(ts_.shape[2]))[::4]+[ts_.shape[2]-1],
-                       self.features_col[0][::4]+[self.features_col[0][-1]],
+                       self.features_col[::4]+[self.features_col[-1]],
                        rotation='vertical')
             plt.xlabel(f'Time (quarterly composites)')
             plt.ylabel(f'Band composite value (uint8)')
@@ -75,6 +75,14 @@ class TimeSeriesProvider(object):
             axs = axs.flatten()
             
             lli = np.cumsum([0]+self.layers_length)
+            
+            # Case of calling plot_ts directly on MultipleTimeSeriesProvider instead of MetaTimeSeriesProvider
+            if type(self.eos_replace_value) is not list:
+                self.eos_replace_value = [self.eos_replace_value]*self.nb_layers
+            features_col = self.features_col
+            if len(np.array(self.features_col).shape) <=1:
+                features_col = [features_col]*self.nb_layers
+            
             # loop through the layers of tss data
             for i in range(self.nb_layers):
                 ts_ = tss[0, i]
@@ -83,7 +91,7 @@ class TimeSeriesProvider(object):
                 k_provider = 0 if k_provider.shape[0] == 0 else k_provider[-1][0]
                 
                 eos_start_ind = np.where(ts_== self.eos_replace_value[i])[0]
-                eos_start_ind = eos_start_ind[0] if eos_start_ind != [] else ts_.shape[0]
+                eos_start_ind = eos_start_ind[0] if eos_start_ind != [] else ts_.shape[0]-1
                 # display the layer on the corresponding subplot
                 axs[i].plot(range(eos_start_ind), ts_[:eos_start_ind],
                                   '-.', c='blue', marker='+')
@@ -91,7 +99,7 @@ class TimeSeriesProvider(object):
                                   '', c='red', marker='+')
                 axs[i].set_title(f'layer: {self.bands_names[i]}\n{item}')
                 axs[i].set_xticks(list(range(ts_.shape[0]))[::4]+[ts_.shape[0]-1],
-                                  self.features_col[k_provider][::4]+[self.features_col[k_provider][-1]],
+                                  features_col[k_provider][::4]+[features_col[k_provider][-1]],
                                   rotation='vertical')
                 axs[i].set_xlabel(f'Time (quarterly composites)')
                 axs[i].set_ylabel(f'Band composite value (uint8)')
@@ -198,7 +206,7 @@ class MultipleCSVTimeSeriesProvider(TimeSeriesProvider):
         self.ts_paths = ts_paths
         self.ts_providers = [CSVTimeSeriesProvider(root_path+path, normalize=normalize, ts_id=ts_id, features_col=features_col, eos_replace_value=eos_replace_value, transform=transform) for path in ts_paths]
         self.nb_layers = len(self.ts_providers)
-        # self.bands_names = [ts_.bands_names for ts_ in self.ts_providers]
+        self.layers_length = [provider.nb_layers for provider in self.ts_providers]
         self.bands_names = list(itertools.chain.from_iterable([provider.bands_names for provider in self.ts_providers]))
         self.min_sequence = min(list(itertools.chain.from_iterable([[ts_.min_sequence] for ts_ in self.ts_providers])))
         self.max_sequence = max(list(itertools.chain.from_iterable([[ts_.max_sequence] for ts_ in self.ts_providers])))
