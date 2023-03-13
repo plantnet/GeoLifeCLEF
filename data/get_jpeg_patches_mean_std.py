@@ -1,26 +1,8 @@
 import os, re
 import numpy as np
 from PIL import Image
-import argparse
 import pandas as pd
-
-PARSER = argparse.ArgumentParser()
-PARSER.add_argument('--root_path',
-                    nargs=1,
-                    type=str,
-                    default=['sample_data/SatelliteImages/'],
-                    help='Rooth path.')
-PARSER.add_argument('--ext',
-                    nargs=1,
-                    type=str,
-                    default=['jpg', 'jpeg'],
-                    help='File extension.')
-PARSER.add_argument('--out',
-                    nargs=1,
-                    type=str,
-                    default=['sample_data/SatelliteImages/jpeg_patches_sample_stats.csv'],
-                    help='Output path.')
-ARGS = PARSER.parse_args()
+import argparse
 
 
 def get_files_path_recursively(path, *args, suffix=''):
@@ -92,6 +74,23 @@ def standardize(root_path:str='sample_data/SatelliteImages/',
 
 
 if __name__ == '__main__':
+    PARSER = argparse.ArgumentParser()
+    PARSER.add_argument('--root_path',
+                        nargs=1,
+                        type=str,
+                        default=['sample_data/SatelliteImages/'],
+                        help='Rooth path.')
+    PARSER.add_argument('--ext',
+                        nargs=1,
+                        type=str,
+                        default=['jpg', 'jpeg'],
+                        help='File extension.')
+    PARSER.add_argument('--out',
+                        nargs=1,
+                        type=str,
+                        default=['sample_data/SatelliteImages/jpeg_patches_sample_stats.csv'],
+                        help='Output path.')
+    ARGS = PARSER.parse_args()
     path = ARGS.root_path[0]
     ext = ARGS.ext
     out = ARGS.out[0]
