@@ -17,20 +17,18 @@ dependencies:
   - beautifulsoup4=4.11.1=py39h06a4308_0
   - blas=1.0=mkl
   - bleach=4.1.0=pyhd3eb1b0_0
-  - blosc=1.21.3=h6a678d5_0
-  - boost-cpp=1.70.0=ha2d47e9_1
   - bottleneck=1.3.5=py39h7deecbd_0
   - branca=0.6.0=py39h06a4308_0
   - brotli=1.0.9=h5eee18b_7
   - brotli-bin=1.0.9=h5eee18b_7
   - brotlipy=0.7.0=py39h27cfd23_1003
-  - bzip2=1.0.8=h7f98852_4
-  - c-ares=1.18.1=h7f98852_0
+  - bzip2=1.0.8=h7b6447c_0
+  - c-ares=1.19.0=h5eee18b_0
   - ca-certificates=2023.01.10=h06a4308_0
-  - cairo=1.16.0=hb05425b_3
+  - cairo=1.16.0=hb05425b_4
   - certifi=2022.12.7=py39h06a4308_0
   - cffi=1.15.1=py39h5eee18b_3
-  - cfitsio=3.470=hb418390_7
+  - cfitsio=3.470=h5893167_7
   - charset-normalizer=2.0.4=pyhd3eb1b0_0
   - click=8.0.4=py39h06a4308_0
   - click-plugins=1.1.1=pyhd3eb1b0_0
@@ -38,8 +36,8 @@ dependencies:
   - comm=0.1.2=py39h06a4308_0
   - contextily=1.3.0=pyhd8ed1ab_0
   - contourpy=1.0.5=py39hdb19cb5_0
-  - cryptography=38.0.4=py39h9ce1e76_0
-  - curl=7.87.0=h5eee18b_0
+  - cryptography=39.0.1=py39h9ce1e76_0
+  - curl=7.88.1=h5eee18b_0
   - cycler=0.11.0=pyhd3eb1b0_0
   - dbus=1.13.18=hb2f20db_0
   - debugpy=1.5.1=py39h295c915_0
@@ -48,15 +46,14 @@ dependencies:
   - entrypoints=0.4=py39h06a4308_0
   - executing=0.8.3=pyhd3eb1b0_0
   - expat=2.4.9=h6a678d5_0
-  - fftw=3.3.9=h27cfd23_1
   - fiona=1.8.22=py39h417a72b_0
   - flit-core=3.6.0=pyhd3eb1b0_0
   - folium=0.14.0=py39h06a4308_0
   - fontconfig=2.14.1=h52c9d5c_1
   - fonttools=4.25.0=pyhd3eb1b0_0
   - freetype=2.12.1=h4a9f257_0
-  - freexl=1.0.6=h7f98852_0
-  - future=0.18.2=py39h06a4308_1
+  - freexl=1.0.6=h27cfd23_0
+  - future=0.18.3=py39h06a4308_0
   - gdal=3.0.2=py39h40f10ac_6
   - geographiclib=1.52=pyhd8ed1ab_0
   - geopandas=0.12.2=py39h06a4308_0
@@ -64,12 +61,12 @@ dependencies:
   - geopy=2.3.0=pyhd8ed1ab_0
   - geos=3.8.0=he6710b0_0
   - geotiff=1.7.0=hd69d5b1_0
-  - giflib=5.2.1=h5eee18b_1
+  - giflib=5.2.1=h5eee18b_3
   - glib=2.69.1=he621ea3_2
-  - gst-plugins-base=1.14.0=h8213a91_2
-  - gstreamer=1.14.0=h28cd5cc_2
+  - gst-plugins-base=1.14.1=h6a678d5_1
+  - gstreamer=1.14.1=h5eee18b_1
   - hdf4=4.2.13=h3ca952b_2
-  - hdf5=1.10.6=nompi_h6a2412b_1114
+  - hdf5=1.10.6=h3ffc7dd_1
   - icu=58.2=he6710b0_3
   - idna=3.4=py39h06a4308_0
   - importlib-metadata=4.11.3=py39h06a4308_0
@@ -81,8 +78,8 @@ dependencies:
   - jedi=0.18.1=py39h06a4308_1
   - jinja2=3.1.2=py39h06a4308_0
   - joblib=1.1.1=py39h06a4308_0
-  - jpeg=9e=h7f8727e_0
-  - json-c=0.16=hc379101_0
+  - jpeg=9e=h5eee18b_1
+  - json-c=0.16=h5eee18b_0
   - json5=0.9.6=pyhd3eb1b0_0
   - jsonschema=4.17.3=py39h06a4308_0
   - jupyter=1.0.0=py39h06a4308_8
@@ -100,39 +97,39 @@ dependencies:
   - lcms2=2.12=h3be6417_0
   - ld_impl_linux-64=2.38=h1181459_1
   - lerc=3.0=h295c915_0
+  - libboost=1.73.0=h28710b8_12
   - libbrotlicommon=1.0.9=h5eee18b_7
   - libbrotlidec=1.0.9=h5eee18b_7
   - libbrotlienc=1.0.9=h5eee18b_7
   - libclang=10.0.1=default_hb85057a_2
-  - libcurl=7.87.0=h91b91d3_0
+  - libcurl=7.88.1=h91b91d3_0
   - libdap4=3.19.1=h6ec2957_0
-  - libdeflate=1.8=h7f8727e_5
+  - libdeflate=1.17=h5eee18b_0
   - libedit=3.1.20221030=h5eee18b_0
-  - libev=4.33=h516909a_1
+  - libev=4.33=h7f8727e_1
   - libevent=2.1.12=h8f2d780_0
   - libffi=3.4.2=h6a678d5_6
   - libgcc-ng=11.2.0=h1234567_1
   - libgdal=3.0.2=hf71aff0_6
-  - libgfortran-ng=12.2.0=h69a702a_19
-  - libgfortran5=12.2.0=h337968e_19
+  - libgfortran-ng=11.2.0=h00389a5_1
+  - libgfortran5=11.2.0=h1234567_1
   - libgomp=11.2.0=h1234567_1
-  - libiconv=1.17=h166bdaf_0
-  - libkml=1.3.0=h4fcabce_1010
+  - libkml=1.3.0=h096b73e_6
   - libllvm10=10.0.1=hbcb73fb_5
   - libnetcdf=4.8.1=h8322cc2_2
   - libnghttp2=1.46.0=hce63b2e_0
-  - libpng=1.6.37=hbc83047_0
+  - libpng=1.6.39=h5eee18b_0
   - libpq=12.9=h16c4e8d_3
   - libprotobuf=3.20.3=he621ea3_0
   - libsodium=1.0.18=h7b6447c_0
   - libspatialindex=1.9.3=h2531618_0
   - libspatialite=4.3.0a=h71b31bf_21
-  - libssh2=1.10.0=ha56f1ee_2
+  - libssh2=1.10.0=h8f2d780_0
   - libstdcxx-ng=11.2.0=h1234567_1
-  - libtiff=4.5.0=h6a678d5_1
+  - libtiff=4.5.0=h6a678d5_2
   - libuuid=1.41.5=h5eee18b_0
-  - libwebp=1.2.4=h11a3e52_0
-  - libwebp-base=1.2.4=h5eee18b_0
+  - libwebp=1.2.4=h11a3e52_1
+  - libwebp-base=1.2.4=h5eee18b_1
   - libxcb=1.15=h7f8727e_0
   - libxkbcommon=1.0.1=hfa300c1_0
   - libxml2=2.9.14=h74e7548_0
@@ -176,19 +173,17 @@ dependencies:
   - pandocfilters=1.5.0=pyhd3eb1b0_0
   - parso=0.8.3=pyhd3eb1b0_0
   - pcre=8.45=h295c915_0
-  - pcre2=10.37=h032f7d1_0
   - pexpect=4.8.0=pyhd3eb1b0_3
   - pickleshare=0.7.5=pyhd3eb1b0_1003
-  - pillow=9.3.0=py39h6a678d5_2
-  - pip=22.3.1=py39h06a4308_0
-  - pixman=0.40.0=h36c2ea0_0
+  - pillow=9.4.0=py39h6a678d5_0
+  - pip=23.0.1=py39h06a4308_0
+  - pixman=0.40.0=h7f8727e_1
   - platformdirs=2.5.2=py39h06a4308_0
   - ply=3.11=py39h06a4308_0
   - pooch=1.4.0=pyhd3eb1b0_0
   - poppler=0.81.0=h01f5e8b_2
-  - poppler-data=0.4.12=hd8ed1ab_0
-  - postgresql=12.9=h16c4e8d_3
-  - proj=6.2.1=hc80f0dc_0
+  - poppler-data=0.4.11=h06a4308_1
+  - proj=6.2.1=h05a3930_0
   - prometheus_client=0.14.1=py39h06a4308_0
   - prompt-toolkit=3.0.36=py39h06a4308_0
   - prompt_toolkit=3.0.36=hd3eb1b0_0
@@ -197,7 +192,7 @@ dependencies:
   - pure_eval=0.2.2=pyhd3eb1b0_0
   - pycparser=2.21=pyhd3eb1b0_0
   - pygments=2.11.2=pyhd3eb1b0_0
-  - pyopenssl=22.0.0=pyhd3eb1b0_0
+  - pyopenssl=23.0.0=py39h06a4308_0
   - pyparsing=3.0.9=py39h06a4308_0
   - pyproj=2.6.1.post1=py39hb3025e9_1
   - pyqt=5.15.7=py39h6a678d5_1
@@ -211,7 +206,6 @@ dependencies:
   - pytz=2022.7=py39h06a4308_0
   - pyyaml=6.0=py39h5eee18b_1
   - pyzmq=23.2.0=py39h6a678d5_0
-  - qhull=2020.2=h4bd325d_2
   - qt-main=5.15.2=h327a75a_7
   - qt-webengine=5.15.9=hd2b0992_4
   - qtconsole=5.4.0=py39h06a4308_0
@@ -219,10 +213,10 @@ dependencies:
   - qtwebkit=5.212=h4eab89a_4
   - rasterio=1.2.10=py39h9a6c7ee_0
   - readline=8.2=h5eee18b_0
-  - requests=2.28.1=py39h06a4308_0
+  - requests=2.28.1=py39h06a4308_1
   - rtree=1.0.1=py39h06a4308_0
   - scikit-learn=1.2.1=py39h6a678d5_0
-  - scipy=1.10.0=py39h14f4228_0
+  - scipy=1.10.0=py39h14f4228_1
   - send2trash=1.8.0=pyhd3eb1b0_1
   - setuptools=65.6.3=py39h06a4308_0
   - shapely=1.8.4=py39h81ba7c5_0
@@ -260,4 +254,3 @@ dependencies:
   - zipp=3.11.0=py39h06a4308_0
   - zlib=1.2.13=h5eee18b_0
   - zstd=1.5.2=ha4553b6_0
-prefix: /home/bdeneu/miniconda3/envs/glc
