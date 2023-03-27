@@ -101,7 +101,7 @@ class RasterPatchProvider(PatchProvider):
         super().__init__(size, normalize)
         self.spatial_noise = spatial_noise
         self.fill_zero_if_error = fill_zero_if_error
-        self.transformer = pyproj.Transformer.from_crs("epsg:4326", "epsg:4326", always_xy=True)
+        self.transformer = None
         self.name = os.path.basename(os.path.splitext(raster_path)[0])
         self.normalize = normalize
 
