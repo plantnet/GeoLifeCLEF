@@ -101,7 +101,7 @@ class RasterPatchProvider(PatchProvider):
         super().__init__(size, normalize)
         self.spatial_noise = spatial_noise
         self.fill_zero_if_error = fill_zero_if_error
-        self.transformer = None
+        self.transformer = pyproj.Transformer.from_crs("epsg:4326", "epsg:4326", always_xy=True)
         self.name = os.path.basename(os.path.splitext(raster_path)[0])
         self.normalize = normalize
 
@@ -154,7 +154,7 @@ class RasterPatchProvider(PatchProvider):
         
         # convert the lat, lon coordinates to EPSG:32738
         if self.transformer:
-            lon, lat = self.transformer.transform(item['lon'], item['lat'][0])
+            lon, lat = self.transformer.transform(item['lon'], item['lat'])
         else:
             lon, lat = (item['lon'], item['lat'])
 
