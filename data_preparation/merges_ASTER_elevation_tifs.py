@@ -14,7 +14,7 @@
 import os
 import subprocess
 import sys
-from tif2cog import tif2cog
+from util.tif2cog import tif2cog
 import numpy as np
 from pathlib import Path
 import glob
