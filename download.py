@@ -9,6 +9,8 @@ import os
 import argparse
 import requests
 
+from tqdm import tqdm
+
 download_struct = {
     'EnvironmentalRasters': [
         'Climate.zip',
@@ -66,14 +68,24 @@ def download_file(url, filename):
         filename (str): the location where to write the file
     """
     # Send a HTTP request to the URL of the zipfile
-    response = requests.get(url, timeout=60)
-
+    response = requests.get(url, timeout=60, stream=True)
     # Make sure the request was successful
     assert response.status_code == 200, 'Failed to download file'
 
-    # Write the content of the response to a zipfile
-    with open(filename, 'wb') as f:
-        f.write(response.content)
+    total_size_in_bytes = int(response.headers.get('content-length', 0))
+    block_size = 1024  # 1 Kilobyte
+
+    progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
+
+    with open(filename, 'wb') as file:
+        for data in response.iter_content(block_size):
+            progress_bar.update(len(data))
+            file.write(data)
+
+    progress_bar.close()
+
+    if total_size_in_bytes not in (0, progress_bar.n):
+        raise requests.exceptions.HTTPError('Error.. size do not match...')
 
 if __name__ == "__main__":
     # Create the parser
