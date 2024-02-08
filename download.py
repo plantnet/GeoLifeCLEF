@@ -4,7 +4,6 @@ Author: maximiliense
 Date: 2024-02-08
 Description: This script downloads files from the GeoLifeCLEF 2024 dataset.
 """
-# %% imports
 import re
 import os
 import argparse
@@ -18,6 +17,17 @@ download_struct = {
     'PresenceAbsenceSurveys': [
         'GLC24_PA_metadata_test.csv',
         'GLC24_PA_metadata_train.csv'
+    ],
+    'PresenceOnlyOccurences': [
+        'GLC24_PO_metadata_train.csv',
+        'po_train_patches_nir.zip',
+        'po_train_patches_rgb.zip'
+    ],
+    'SatelitePatches': [
+        'PA_Test_SatellitePatches_NIR.zip',
+        'PA_Test_SatellitePatches_RGB.zip',
+        'PA_Train_SatellitePatches_NIR.zip',
+        'PA_Train_SatellitePatches_RGB.zip'
     ]
 }
 repository = 'https://lab.plantnet.org/seafile/d/bdb829337aa44a9489f6'
@@ -75,7 +85,7 @@ if __name__ == "__main__":
     for k, tab in download_struct.items():
         group = parser.add_argument_group(k)
         for v in tab:
-            group.add_argument(f'--{v}', action='store_true', help='Set the flag')
+            group.add_argument(f'--{v}', action='store_true')
 
     # Parse the arguments
     args = parser.parse_args()
