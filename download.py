@@ -32,8 +32,8 @@ def find_url(category, file):
 
     if match:
         return match.group(1).replace('\\u002D', '-') + '?raw=1'
-    else:
-        print(f'Failed to find url for {category}/{file}')
+
+    raise requests.exceptions.HTTPError(f'Failed to find url for {category}/{file}')
 
 
 def download_file(url, filename):
@@ -71,6 +71,11 @@ if __name__ == "__main__":
     for k, tab in download_struct.items():
         for item in tab:
             if getattr(args, f'{item}'):
-                u = find_url(k, item)
-                print(f'Downloading {u} ({item})')
-                download_file(u, item)
+                try:
+                    u = find_url(k, item)
+                    print(f'Downloading {u} ({item})')
+                    download_file(u, item)
+                except requests.exceptions.HTTPError:
+                    print(f'Failed to find url for {k}/{item}')
+                except AssertionError:
+                    print(f'Failed to download file {k}/{item}\n\t{u}')
