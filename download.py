@@ -1,10 +1,14 @@
+"""
+File: download.py
+Author: maximiliense
+Date: 2024-02-08
+Description: This script downloads files from the GeoLifeCLEF 2024 dataset.
+"""
 # %% imports
 import re
+import os
 import argparse
 import requests
-
-# Create the parser
-parser = argparse.ArgumentParser(description='GeoLifeCLEF 2024 file downloader')
 
 download_struct = {
     'EnvironmentalRasters': [
@@ -16,16 +20,6 @@ download_struct = {
         'GLC24_PA_metadata_train.csv'
     ]
 }
-
-for k, tab in download_struct.items():
-    group = parser.add_argument_group(k)
-    for v in tab:
-        group.add_argument(f'--{v}', action='store_true', help='Set the flag')
-
-# Parse the arguments
-args = parser.parse_args()
-
-# select files to download
 repository = 'https://lab.plantnet.org/seafile/d/bdb829337aa44a9489f6'
 url_struct = f'{repository}/files/?p=/{{}}/{{}}'
 
@@ -53,10 +47,30 @@ def download_file(url, filename):
     with open(filename, 'wb') as f:
         f.write(response.content)
 
+if __name__ == "__main__":
+    # Create the parser
+    parser = argparse.ArgumentParser(description='GeoLifeCLEF 2024 file downloader')
 
-for k, tab in download_struct.items():
-    for item in tab:
-        if getattr(args, f'{item}'):
-            url = find_url(k, item)
-            print(url)
-            download_file(url, item)
+    parser.add_argument(
+        '--data', default='data', help='Destination for the downloads (default: data)')
+
+    for k, tab in download_struct.items():
+        group = parser.add_argument_group(k)
+        for v in tab:
+            group.add_argument(f'--{v}', action='store_true', help='Set the flag')
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # Create output folder
+    if not os.path.exists(args.data):
+        print(f'mkdir {args.data}')
+        os.mkdir(args.data)
+
+    # select files to download (those where the corresponding args is true)
+    for k, tab in download_struct.items():
+        for item in tab:
+            if getattr(args, f'{item}'):
+                u = find_url(k, item)
+                print(f'Downloading {u} ({item})')
+                download_file(u, item)
