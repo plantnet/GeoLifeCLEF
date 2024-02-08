@@ -24,6 +24,18 @@ repository = 'https://lab.plantnet.org/seafile/d/bdb829337aa44a9489f6'
 url_struct = f'{repository}/files/?p=/{{}}/{{}}'
 
 def find_url(category, file):
+    """Given the folder and the file, return the url to download the file
+
+    Args:
+        category (str): folder containing the file
+        file (str): file to download
+
+    Raises:
+        requests.exceptions.HTTPError: exception raised when the url is not found
+
+    Returns:
+        str: the url to direct download the file
+    """
     response = requests.get(url_struct.format(category, file), timeout=60)
     url_key = "rawPath"
     pattern = f"{url_key}: '([^']+)'"
@@ -37,6 +49,12 @@ def find_url(category, file):
 
 
 def download_file(url, filename):
+    """Download a file given an url.
+
+    Args:
+        url (str): the url of the file to download
+        filename (str): the location where to write the file
+    """
     # Send a HTTP request to the URL of the zipfile
     response = requests.get(url)
 
