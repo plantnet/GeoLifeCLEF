@@ -85,7 +85,7 @@ def download_file(url, filename):
     progress_bar.close()
 
     if total_size_in_bytes not in (0, progress_bar.n):
-        raise requests.exceptions.HTTPError('Error.. size do not match...')
+        raise requests.exceptions.RequestException('Error.. size do not match...')
 
 if __name__ == "__main__":
     # Create the parser
@@ -117,5 +117,5 @@ if __name__ == "__main__":
                     download_file(u, f'{args.data}/{item}')
                 except requests.exceptions.HTTPError:
                     print(f'Failed to find url for {k}/{item}')
-                except AssertionError:
+                except (AssertionError, requests.exceptions.RequestException):
                     print(f'Failed to download file {k}/{item}\n\t{u}')
