@@ -74,7 +74,7 @@ if __name__ == "__main__":
                 try:
                     u = find_url(k, item)
                     print(f'Downloading {u} ({item})')
-                    download_file(u, item)
+                    download_file(u, f'{args.data}/{item}')
                 except requests.exceptions.HTTPError:
                     print(f'Failed to find url for {k}/{item}')
                 except AssertionError:
