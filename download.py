@@ -56,7 +56,7 @@ def download_file(url, filename):
         filename (str): the location where to write the file
     """
     # Send a HTTP request to the URL of the zipfile
-    response = requests.get(url)
+    response = requests.get(url, timeout=60)
 
     # Make sure the request was successful
     assert response.status_code == 200, 'Failed to download file'
