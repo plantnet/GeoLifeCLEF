@@ -108,7 +108,10 @@ def process_download(cat, file, data):
 
 if __name__ == "__main__":
     # Create the parser
-    parser = argparse.ArgumentParser(description='GeoLifeCLEF 2024 file downloader')
+    parser = argparse.ArgumentParser(
+        description=('GeoLifeCLEF 2024 file downloader. '
+                     'The script permits to download individual '
+                     'files or all files at once.'))
 
     parser.add_argument(
         '--data', default='data', help='Destination for the downloads (default: data)')
