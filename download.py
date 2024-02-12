@@ -13,23 +13,23 @@ from tqdm import tqdm
 
 download_struct = {
     'EnvironmentalRasters': [
-        'Climate.zip',
-        'Elevation.zip'
+        ('Climate.zip', '26.7GB'),
+        ('Elevation.zip', '13.1GB')
         ],
     'PresenceAbsenceSurveys': [
-        'GLC24_PA_metadata_test.csv',
-        'GLC24_PA_metadata_train.csv'
+        ('GLC24_PA_metadata_test.csv', '5.4MB'),
+        ('GLC24_PA_metadata_train.csv', '97.7MB')
     ],
-    'PresenceOnlyOccurences': [
-        'GLC24_PO_metadata_train.csv',
-        'po_train_patches_nir.zip',
-        'po_train_patches_rgb.zip'
+    'PresenceOnlyOccurrences': [
+        ('GLC24_PO_metadata_train.csv', '376.8MB'),
+        #'po_train_patches_nir.zip',
+        #'po_train_patches_rgb.zip'
     ],
-    'SatelitePatches': [
-        'PA_Test_SatellitePatches_NIR.zip',
-        'PA_Test_SatellitePatches_RGB.zip',
-        'PA_Train_SatellitePatches_NIR.zip',
-        'PA_Train_SatellitePatches_RGB.zip'
+    'SatellitePatches': [
+        ('PA_Test_SatellitePatches_NIR.zip', '20.1MB'),
+        ('PA_Test_SatellitePatches_RGB.zip', '19.6MB'),
+        ('PA_Train_SatellitePatches_NIR.zip', '374.7MB'),
+        ('PA_Train_SatellitePatches_RGB.zip', '353.4MB')
     ]
 }
 repository = 'https://lab.plantnet.org/seafile/d/bdb829337aa44a9489f6'
@@ -87,6 +87,17 @@ def download_file(url, filename):
     if total_size_in_bytes not in (0, progress_bar.n):
         raise requests.exceptions.RequestException('Error.. size do not match...')
 
+
+def process_download(cat, file, data):
+    try:
+        u = find_url(cat, file)
+        print(f'Downloading {u} ({file})')
+        download_file(u, f'{data}/{file}')
+    except requests.exceptions.HTTPError:
+        print(f'Failed to find url for {cat}/{file}')
+    except (AssertionError, requests.exceptions.RequestException):
+        print(f'Failed to download file {cat}/{file}\n\t{u}')
+
 if __name__ == "__main__":
     # Create the parser
     parser = argparse.ArgumentParser(description='GeoLifeCLEF 2024 file downloader')
@@ -94,10 +105,12 @@ if __name__ == "__main__":
     parser.add_argument(
         '--data', default='data', help='Destination for the downloads (default: data)')
 
+    parser.add_argument('-all', action='store_true', help='Download all files')
+
     for k, tab in download_struct.items():
         group = parser.add_argument_group(k)
-        for v in tab:
-            group.add_argument(f'--{v}', action='store_true')
+        for v, s in tab:
+            group.add_argument(f'--{v}', action='store_true', help=s)
 
     # Parse the arguments
     args = parser.parse_args()
@@ -109,13 +122,6 @@ if __name__ == "__main__":
 
     # select files to download (those where the corresponding args is true)
     for k, tab in download_struct.items():
-        for item in tab:
-            if getattr(args, f'{item}'):
-                try:
-                    u = find_url(k, item)
-                    print(f'Downloading {u} ({item})')
-                    download_file(u, f'{args.data}/{item}')
-                except requests.exceptions.HTTPError:
-                    print(f'Failed to find url for {k}/{item}')
-                except (AssertionError, requests.exceptions.RequestException):
-                    print(f'Failed to download file {k}/{item}\n\t{u}')
+        for item, _ in tab:
+            if getattr(args, f'{item}') or args.all:
+                process_download(k, item, args.data)
