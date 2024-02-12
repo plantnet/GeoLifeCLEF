@@ -89,6 +89,14 @@ def download_file(url, filename):
 
 
 def process_download(cat, file, data):
+    """Download the file in category cat into the folder data. The function
+    handles the exception that can rise from the sub-methods.
+
+    Args:
+        cat (str): the folder containing the file
+        file (str): the file itself
+        data (str): the folder to save the data in
+    """
     try:
         u = find_url(cat, file)
         print(f'Downloading {u} ({file})')
