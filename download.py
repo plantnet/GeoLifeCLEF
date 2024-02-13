@@ -60,6 +60,31 @@ def find_url(category, file):
     raise requests.exceptions.HTTPError(f'Failed to find url for {category}/{file}')
 
 
+def check_if_file_complete(path, response):
+    """Given a path and a response from a request returns True or False
+    if the file needs to be redownloaded...
+
+    Args:
+        path (str): the location of the file on disk
+        response (requests.models.Response): the response to the file request
+
+    Returns:
+        bool: True if the file needs to be downloaded, False otherwise.
+    """
+    # check if file exists
+    if os.path.exists(path):
+        # get file size from response
+        file_size_server = int(response.headers.get('Content-Length', 0))
+        file_size_downloaded = os.path.getsize(path)
+        if file_size_server != file_size_downloaded:
+            return True
+        else:
+            print(f'{path} already downloaded and complete.')
+            return False
+    else:
+        return True
+
+
 def download_file(url, filename):
     """Download a file given an url.
 
@@ -72,20 +97,22 @@ def download_file(url, filename):
     # Make sure the request was successful
     assert response.status_code == 200, 'Failed to download file'
 
-    total_size_in_bytes = int(response.headers.get('content-length', 0))
-    block_size = 1024  # 1 Kilobyte
+    # Download file only if needs to be
+    if check_if_file_complete(filename, response):
+        total_size_in_bytes = int(response.headers.get('content-length', 0))
+        block_size = 1024  # 1 Kilobyte
 
-    progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
+        progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
 
-    with open(filename, 'wb') as file:
-        for data in response.iter_content(block_size):
-            progress_bar.update(len(data))
-            file.write(data)
+        with open(filename, 'wb') as file:
+            for data in response.iter_content(block_size):
+                progress_bar.update(len(data))
+                file.write(data)
 
-    progress_bar.close()
+        progress_bar.close()
 
-    if total_size_in_bytes not in (0, progress_bar.n):
-        raise requests.exceptions.RequestException('Error.. size do not match...')
+        if total_size_in_bytes not in (0, progress_bar.n):
+            raise requests.exceptions.RequestException('Error.. size do not match...')
 
 
 def process_download(cat, file, data):
@@ -116,7 +143,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--data', default='data', help='Destination for the downloads (default: data)')
 
-    parser.add_argument('-all', action='store_true', help='Download all files')
+    parser.add_argument('--all', action='store_true', help='Download all files')
 
     for k, tab in download_struct.items():
         group = parser.add_argument_group(k)
