@@ -11,32 +11,39 @@ import requests
 
 from tqdm import tqdm
 
-download_struct = {
-    'EnvironmentalRasters': [
-        ('Climate.zip', '26.7GB'),
-        ('Elevation.zip', '13.1GB')
-        ],
-    'PresenceAbsenceSurveys': [
-        ('GLC24_PA_metadata_test.csv', '5.4MB'),
-        ('GLC24_PA_metadata_train.csv', '97.7MB')
-    ],
-    'PresenceOnlyOccurrences': [
-        ('GLC24_PO_metadata_train.csv', '376.8MB'),
-        #'po_train_patches_nir.zip',
-        #'po_train_patches_rgb.zip'
-    ],
-    'SatellitePatches': [
-        ('PA_Test_SatellitePatches_NIR.zip', '20.1MB'),
-        ('PA_Test_SatellitePatches_RGB.zip', '19.6MB'),
-        ('PA_Train_SatellitePatches_NIR.zip', '374.7MB'),
-        ('PA_Train_SatellitePatches_RGB.zip', '353.4MB')
-    ]
+download_all = {
+    'presence_only': [
+        'PresenceOnlyOccurrences/GLC24_PO_metadata_train.csv',
+        'EnvironmentalRasters/Obs extractions/cubes/GLC24-PO-train-bioclimatic_monthly.zip',
+        'SatelliteTimeSeries/cubes/GLC24-PO-train-landsat_time_series.zip',
+        'SatellitePatches/PO_Train_SatellitePatches_NIR.zip',
+        'SatellitePatches/PO_Train_SatellitePatches_RGB.zip',],
+    'presence_absence': [
+        'PresenceAbsenceSurveys/GLC24_PA_metadata_test.csv',
+        'PresenceAbsenceSurveys/GLC24_PA_metadata_train.csv',
+        'SatellitePatches/PA_Test_SatellitePatches_NIR.zip',
+        'SatellitePatches/PA_Test_SatellitePatches_RGB.zip',
+        'SatellitePatches/PA_Train_SatellitePatches_NIR.zip',
+        'SatellitePatches/PA_Train_SatellitePatches_RGB.zip',
+        'EnvironmentalRasters/Obs extractions/cubes/GLC24-PA-test-bioclimatic_monthly.zip',
+        'EnvironmentalRasters/Obs extractions/cubes/GLC24-PA-train-bioclimatic_monthly.zip',
+        'SatelliteTimeSeries/cubes/GLC24-PA-test-landsat_time_series.zip',
+        'SatelliteTimeSeries/cubes/GLC24-PA-train-landsat_time_series.zip']
 }
 
-download_struct = {
+download_groups = {
     'EnvironmentalRasters': {
         'climate': ('Climate.zip', '26.7GB'),
-        'elevation': ('Elevation.zip', '13.1GB')
+        'elevation': ('Elevation.zip', '13.1GB'),
+        'humanfootprint': ('HumanFootprint.zip', '73.1MB'),
+        'landcover': ('LandCover.zip', '29.8MB'),
+        'soilgrids': ('Soilgrids.zip', '648.2MB'),
+        'pa_test_bioclim_monthly': (
+            'Obs extractions/cubes/GLC24-PA-test-bioclimatic_monthly.zip', '13.2MB'),
+        'pa_train_bioclim_monthly': (
+            'Obs extractions/cubes/GLC24-PA-train-bioclimatic_monthly.zip', '248.3MB'),
+        'po_train_bioclim_monthly': (
+            'Obs extractions/cubes/GLC24-PO-train-bioclimatic_monthly.zip', '11.0GB')
     },
     'PresenceAbsenceSurveys': {
         'pa_metadata_test': ('GLC24_PA_metadata_test.csv', '5.4MB'),
@@ -49,7 +56,14 @@ download_struct = {
         'pa_test_satellite_patches_nir': ('PA_Test_SatellitePatches_NIR.zip', '20.1MB'),
         'pa_test_satellite_patches_rgb': ('PA_Test_SatellitePatches_RGB.zip', '19.6MB'),
         'pa_train_satellite_patches_nir': ('PA_Train_SatellitePatches_NIR.zip', '374.7MB'),
-        'pa_train_satellite_patches_rgb': ('PA_Train_SatellitePatches_RGB.zip', '353.4MB')
+        'pa_train_satellite_patches_rgb': ('PA_Train_SatellitePatches_RGB.zip', '353.4MB'),
+        'po_train_satellite_patches_nir': ('PO_Train_SatellitePatches_NIR.zip', '17.3GB'),
+        'po_train_satellite_patches_rgb': ('PO_Train_SatellitePatches_RGB.zip', '17.1GB')
+    },
+    'SatelliteTimeSeries': {
+        'pa_test_landsat_time_series': ('cubes/GLC24-PA-test-landsat_time_series.zip', '6.7MB'),
+        'pa_train_landsat_time_series': ('cubes/GLC24-PA-train-landsat_time_series.zip', '125.8MB'),
+        'po_train_landsat_time_series': ('cubes/GLC24-PO-train-landsat_time_series.zip', '5.5GB')
     }
 }
 
@@ -83,7 +97,7 @@ def find_url(file):
 
 def check_if_file_complete(path, response):
     """Given a path and a response from a request returns True or False
-    if the file needs to be redownloaded...
+    if the file needs to be re-downloaded...
 
     Args:
         path (str): the location of the file on disk
@@ -97,7 +111,7 @@ def check_if_file_complete(path, response):
         # get file size from response
         file_size_server = int(response.headers.get('Content-Length', 0))
         file_size_downloaded = os.path.getsize(path)
-        if file_size_server != file_size_downloaded: # TODO add epsilon
+        if file_size_server != file_size_downloaded:
             return True
         else:
             print(f'{path} already downloaded and complete.')
@@ -123,10 +137,13 @@ def download_file(url, filename):
         total_size_in_bytes = int(response.headers.get('content-length', 0))
         block_size = 1024  # 1 Kilobyte
 
-        progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
+        # Create dest directory if required
         if not os.path.exists(os.path.dirname(filename)):
             print(f'mkdir {os.path.dirname(filename)}')
             os.makedirs(os.path.dirname(filename))
+
+        progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
+
         with open(filename, 'wb') as file:
             for data in response.iter_content(block_size):
                 progress_bar.update(len(data))
@@ -170,7 +187,14 @@ if __name__ == "__main__":
 
     urls_dict = {}
 
-    for k, v in download_struct.items():
+    for k, v in download_all.items():
+        all_urls = []
+        parser.add_argument(f'--{k}', action='store_true', help=f'Download all {k} data')
+        group = parser.add_argument_group(k)
+
+        urls_dict[k] = v
+
+    for k, v in download_groups.items():
         all_url_in_group = []
         group = parser.add_argument_group(k)
         for opt, f in v.items():
