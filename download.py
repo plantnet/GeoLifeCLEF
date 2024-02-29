@@ -11,62 +11,142 @@ import requests
 
 from tqdm import tqdm
 
-download_all = {
-    'presence_only': [
-        'PresenceOnlyOccurrences/GLC24_PO_metadata_train.csv',
-        'EnvironmentalRasters/Obs extractions/cubes/GLC24-PO-train-bioclimatic_monthly.zip',
-        'SatelliteTimeSeries/cubes/GLC24-PO-train-landsat_time_series.zip',
-        'SatellitePatches/PO_Train_SatellitePatches_NIR.zip',
-        'SatellitePatches/PO_Train_SatellitePatches_RGB.zip',],
-    'presence_absence': [
-        'PresenceAbsenceSurveys/GLC24_PA_metadata_test.csv',
-        'PresenceAbsenceSurveys/GLC24_PA_metadata_train.csv',
-        'SatellitePatches/PA_Test_SatellitePatches_NIR.zip',
-        'SatellitePatches/PA_Test_SatellitePatches_RGB.zip',
-        'SatellitePatches/PA_Train_SatellitePatches_NIR.zip',
-        'SatellitePatches/PA_Train_SatellitePatches_RGB.zip',
-        'EnvironmentalRasters/Obs extractions/cubes/GLC24-PA-test-bioclimatic_monthly.zip',
-        'EnvironmentalRasters/Obs extractions/cubes/GLC24-PA-train-bioclimatic_monthly.zip',
-        'SatelliteTimeSeries/cubes/GLC24-PA-test-landsat_time_series.zip',
-        'SatelliteTimeSeries/cubes/GLC24-PA-train-landsat_time_series.zip']
+variables = [
+    'climate',
+    'elevation',
+    'humanfootprint',
+    'landcover',
+    'soilgrids',
+    'satellitepatches',
+    'satellitetimeseries'
+]
+
+rasters = {
+    'climate': 'EnvironmentalRasters/Climate.zip',
+    'elevation': 'EnvironmentalRasters/Elevation.zip',
+    'humanfootprint': 'EnvironmentalRasters/HumanFootprint.zip',
+    'landcover': 'EnvironmentalRasters/LandCover.zip',
+    'soilgrids': 'EnvironmentalRasters/Soilgrids.zip'
 }
 
-download_groups = {
-    'EnvironmentalRasters': {
-        'climate': ('Climate.zip', '26.7GB'),
-        'elevation': ('Elevation.zip', '13.1GB'),
-        'humanfootprint': ('HumanFootprint.zip', '73.1MB'),
-        'landcover': ('LandCover.zip', '29.8MB'),
-        'soilgrids': ('Soilgrids.zip', '648.2MB'),
-        'pa_test_bioclim_monthly': (
-            'Obs extractions/cubes/GLC24-PA-test-bioclimatic_monthly.zip', '13.2MB'),
-        'pa_train_bioclim_monthly': (
-            'Obs extractions/cubes/GLC24-PA-train-bioclimatic_monthly.zip', '248.3MB'),
-        'po_train_bioclim_monthly': (
-            'Obs extractions/cubes/GLC24-PO-train-bioclimatic_monthly.zip', '11.0GB')
+presence_only = {
+    'climate': {
+        'not_cube': [
+            'EnvironmentalRasters/Climate/GLC24-PO-train-bioclimatic-average.csv',
+            'EnvironmentalRasters/Climate/GLC24-PO-train-bioclimatic-monthly.csv'],
+        'cube': [
+            'EnvironmentalRasters/Climate/GLC24-PO-train-bioclimatic-average.csv',
+            'EnvironmentalRasters/Climate/Climatic_Monthly_2000-2019_cubes/GLC24-PO-train-bioclimatic-monthly.zip'
+        ]
     },
-    'PresenceAbsenceSurveys': {
-        'pa_metadata_test': ('GLC24_PA_metadata_test.csv', '5.4MB'),
-        'pa_metadata_train': ('GLC24_PA_metadata_train.csv', '97.7MB')
+    'elevation': {
+        'not_cube': ['EnvironmentalRasters/Elevation/GLC24-PO-train-elevation.csv']
+        },
+    'humanfootprint': {
+        'not_cube': ['EnvironmentalRasters/HumanFootprint/GLC24-PO-train-human-footprint.csv']
+        },
+    'landcover': {
+        'not_cube': ['EnvironmentalRasters/LandCover/GLC24-PO-train-landcover.csv']},
+    'soilgrids': {
+        'not_cube': ['EnvironmentalRasters/Soilgrids/GLC24-PO-train-soilgrids.csv']
+        },
+    'satellitepatches': {
+        'not_cube': [
+            'SatellitePatches/PO-Train-SatellitePatches-NIR.zip',
+            'SatellitePatches/PO-Train-SatellitePatches-RGB.zip'
+        ]
     },
-    'PresenceOnlyOccurrences': {
-        'po_metadata_train': ('GLC24_PO_metadata_train.csv', '376.8MB')
-    },
-    'SatellitePatches': {
-        'pa_test_satellite_patches_nir': ('PA_Test_SatellitePatches_NIR.zip', '20.1MB'),
-        'pa_test_satellite_patches_rgb': ('PA_Test_SatellitePatches_RGB.zip', '19.6MB'),
-        'pa_train_satellite_patches_nir': ('PA_Train_SatellitePatches_NIR.zip', '374.7MB'),
-        'pa_train_satellite_patches_rgb': ('PA_Train_SatellitePatches_RGB.zip', '353.4MB'),
-        'po_train_satellite_patches_nir': ('PO_Train_SatellitePatches_NIR.zip', '17.3GB'),
-        'po_train_satellite_patches_rgb': ('PO_Train_SatellitePatches_RGB.zip', '17.1GB')
-    },
-    'SatelliteTimeSeries': {
-        'pa_test_landsat_time_series': ('cubes/GLC24-PA-test-landsat_time_series.zip', '6.7MB'),
-        'pa_train_landsat_time_series': ('cubes/GLC24-PA-train-landsat_time_series.zip', '125.8MB'),
-        'po_train_landsat_time_series': ('cubes/GLC24-PO-train-landsat_time_series.zip', '5.5GB')
+    'satellitetimeseries': {
+        'not_cube': [
+            'SatelliteTimeSeries/GLC24-PO-train-landsat-time-series-swir2.csv',
+            'SatelliteTimeSeries/GLC24-PO-train-landsat-time-series-swir1.csv',
+            'SatelliteTimeSeries/GLC24-PO-train-landsat-time-series-red.csv',
+            'SatelliteTimeSeries/GLC24-PO-train-landsat-time-series-nir.csv',
+            'SatelliteTimeSeries/GLC24-PO-train-landsat-time-series-green.csv',
+            'SatelliteTimeSeries/GLC24-PO-train-landsat-time-series-blue.csv',
+        ],
+        'cube': [
+            'SatelliteTimeSeries/cubes/GLC24-PO-train-landsat-time-series.zip'
+        ]
     }
 }
 
+presence_absence = {
+    'climate': {
+        'not_cube': [
+            'EnvironmentalRasters/Climate/GLC24-PA-test-bioclimatic-average.csv',
+            'EnvironmentalRasters/Climate/GLC24-PA-train-bioclimatic-average.csv',
+            'EnvironmentalRasters/Climate/GLC24-PA-test-bioclimatic-monthly.csv',
+            'EnvironmentalRasters/Climate/GLC24-PA-train-bioclimatic-monthly.csv'],
+        'cube': [
+            'EnvironmentalRasters/Climate/GLC24-PA-test-bioclimatic-average.csv',
+            'EnvironmentalRasters/Climate/GLC24-PA-train-bioclimatic-average.csv',
+            'EnvironmentalRasters/Climate/Climatic_Monthly_2000-2019_cubes/GLC24-PA-test-bioclimatic-monthly.zip',
+            'EnvironmentalRasters/Climate/Climatic_Monthly_2000-2019_cubes/GLC24-PA-train-bioclimatic-monthly.zip',
+        ]
+    },
+    'elevation': {
+        'not_cube': [
+            'EnvironmentalRasters/Elevation/GLC24-PA-train-elevation.csv',
+            'EnvironmentalRasters/Elevation/GLC24-PA-test-elevation.csv']
+        },
+    'humanfootprint': {
+        'not_cube': [
+            'EnvironmentalRasters/HumanFootprint/GLC24-PA-train-human-footprint.csv',
+            'EnvironmentalRasters/HumanFootprint/GLC24-PA-test-human-footprint.csv'
+            ]
+        },
+    'landcover': {
+        'not_cube': [
+            'EnvironmentalRasters/LandCover/GLC24-PA-train-landcover.csv',
+            'EnvironmentalRasters/LandCover/GLC24-PA-test-landcover.csv'
+            ]
+    },
+    'soilgrids': {
+        'not_cube': [
+            'EnvironmentalRasters/Soilgrids/GLC24-PA-train-soilgrids.csv',
+            'EnvironmentalRasters/Soilgrids/GLC24-PA-test-soilgrids.csv'
+        ]
+    },
+    'satellitepatches': {
+        'not_cube': [
+            'SatellitePatches/PA-Train-SatellitePatches-NIR.zip',
+            'SatellitePatches/PA-Train-SatellitePatches-RGB.zip',
+            'SatellitePatches/PA-Test-SatellitePatches-NIR.zip',
+            'SatellitePatches/PA-Test-SatellitePatches-RGB.zip'
+        ]
+    },
+    'satellitetimeseries': {
+        'not_cube': [
+            'SatelliteTimeSeries/GLC24-PA-train-landsat-time-series-swir2.csv',
+            'SatelliteTimeSeries/GLC24-PA-train-landsat-time-series-swir1.csv',
+            'SatelliteTimeSeries/GLC24-PA-train-landsat-time-series-red.csv',
+            'SatelliteTimeSeries/GLC24-PA-train-landsat-time-series-nir.csv',
+            'SatelliteTimeSeries/GLC24-PA-train-landsat-time-series-green.csv',
+            'SatelliteTimeSeries/GLC24-PA-train-landsat-time-series-blue.csv',
+            'SatelliteTimeSeries/GLC24-PA-test-landsat-time-series-swir2.csv',
+            'SatelliteTimeSeries/GLC24-PA-test-landsat-time-series-swir1.csv',
+            'SatelliteTimeSeries/GLC24-PA-test-landsat-time-series-red.csv',
+            'SatelliteTimeSeries/GLC24-PA-test-landsat-time-series-nir.csv',
+            'SatelliteTimeSeries/GLC24-PA-test-landsat-time-series-green.csv',
+            'SatelliteTimeSeries/GLC24-PA-test-landsat-time-series-blue.csv'
+        ],
+        'cube': [
+            'SatelliteTimeSeries/cubes/GLC24-PA-train-landsat-time-series.zip',
+            'SatelliteTimeSeries/cubes/GLC24-PA-test-landsat-time-series.zip'
+        ]
+    }
+}
+
+metadata = {
+    'po': [
+        'PresenceOnlyOccurrences/GLC24-PO-metadata-train.csv'
+        ],
+    'pa': [
+        'PresenceAbsenceSurveys/GLC24-PA-metadata-test.csv',
+        'PresenceAbsenceSurveys/GLC24-PA-metadata-train.csv'
+    ]
+}
 repository = 'https://lab.plantnet.org/seafile/d/bdb829337aa44a9489f6'
 url_struct = f'{repository}/files/?p=/{{}}'
 
@@ -173,6 +253,16 @@ def process_download(file, data):
     except (AssertionError, requests.exceptions.RequestException):
         print(f'Failed to download file {file}\n\t{u}')
 
+def process_option(struct, cube, variable, output):
+    if variable in struct:
+        if cube and 'cube' in struct[variable]:
+            l = struct[variable]['cube']
+        else:
+            l = struct[variable]['not_cube']
+        for f in l:
+            process_download(f, output)
+    
+    
 if __name__ == "__main__":
     # Create the parser
     parser = argparse.ArgumentParser(
@@ -183,27 +273,24 @@ if __name__ == "__main__":
     parser.add_argument(
         '--data', default='data', help='Destination for the downloads (default: data)')
 
-    parser.add_argument('--all', action='store_true', help='Download all files')
+    group = parser.add_argument_group('Data type')
+    group.add_argument('--raster', action='store_true', help='Download full rasters')
+    group.add_argument('--presence-only', action='store_true',
+                       help='Download PO metadata and pre-extracted data if option set to true')
+    group.add_argument('--presence-absence', action='store_true',
+                       help='Download PA metadata and pre-extracted data if option set to true')
+    group.add_argument('--pre-extracted', action='store_true',
+                       help='Download pre-extracted data of PO and/or PA depending on the options set')
 
-    urls_dict = {}
+    group.add_argument('--cube', action='store_true',
+                       help='Download cube instead of csv when available')
 
-    for k, v in download_all.items():
-        all_urls = []
-        parser.add_argument(f'--{k}', action='store_true', help=f'Download all {k} data')
-        group = parser.add_argument_group(k)
-
-        urls_dict[k] = v
-
-    for k, v in download_groups.items():
-        all_url_in_group = []
-        group = parser.add_argument_group(k)
-        for opt, f in v.items():
-            urls_dict[opt] = f'{k}/{f[0]}'
-            all_url_in_group.append(urls_dict[opt])
-            group.add_argument(f'--{opt}', action='store_true', help=f[1])
-        urls_dict[f'All{k}'] = all_url_in_group
-        group.add_argument(f'--All{k}', action='store_true',
-                           help='Download all files in this group')
+    group = parser.add_argument_group('Variables')
+    for v in variables:
+        group.add_argument(f'--{v}', action='store_true',
+                           help=f'Download {v} raster or pre-extracted data')
+    group.add_argument('--all-variables', action='store_true',
+                       help='Select all variables')
 
     # Parse the arguments
     args = parser.parse_args()
@@ -213,9 +300,23 @@ if __name__ == "__main__":
         print(f'mkdir {args.data}')
         os.mkdir(args.data)
 
-    # select files to download (those where the corresponding args is true)
-    for k, v in urls_dict.items():
-        v = [v] if isinstance(v, str) else v
-        if getattr(args, f'{k}') or args.all:
-            for f in v:
-                process_download(f, args.data)
+    # download metadata
+    if args.presence_only:
+        process_download(metadata['po'][0], args.data)
+
+    if args.presence_absence:
+        for f in metadata['pa']:
+            process_download(f, args.data)
+
+    for v in variables:
+        # process raster
+        if args.all_variables or getattr(args, v):
+            if args.raster:
+                if v in rasters:
+                    process_download(rasters[v], args.data)
+            # process presence only
+            if args.pre_extracted and args.presence_only:
+                process_option(presence_only, args.cube, v, args.data)
+            # process presence absence
+            if args.pre_extracted and args.presence_absence:
+                process_option(presence_absence, args.cube, v, args.data)
