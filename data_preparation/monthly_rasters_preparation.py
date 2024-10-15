@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Polygon
@@ -14,7 +15,8 @@ def download_and_process(variable, year, month, polygon, base_url, session):
     Download and process a single raster file.
 
     This function downloads a raster file for a specific variable, year, and month.
-    It masks the raster file using the given polygon and saves the masked raster as a new file.
+    It masks the raster file using the given polygon and saves the masked raster as a new file,
+    if it does not already exist.
 
     Args:
         variable (str): The climate variable to download (e.g., 'pr', 'tasmax').
@@ -27,13 +29,22 @@ def download_and_process(variable, year, month, polygon, base_url, session):
     Raises:
         Exception: If an error occurs during the download or file processing.
     """
+    file_path = f"./rasters/{month}_{year}_{variable}.tif"  # Define the file path
+
+    if os.path.exists(file_path):
+        print(f"File already exists: {file_path}. Skipping download.")
+        return  # Skip download if file exists
+
     link = f"{base_url}{variable}/CHELSA_{variable}_{month}_{year}_V.2.1.tif"
+
     try:
         r = session.get(link, stream=True, timeout=10)
         if r.status_code == 200:
+            # Open the raster dataset and apply mask
             with rasterio.open(BytesIO(r.content)) as src:
                 out_image, out_transform = rasterio.mask.mask(src, polygon["geometry"], crop=True)
                 out_meta = src.meta
+
             out_meta.update({
                 "driver": "GTiff",
                 "height": out_image.shape[1],
@@ -41,7 +52,10 @@ def download_and_process(variable, year, month, polygon, base_url, session):
                 "transform": out_transform,
                 "compress": "deflate"
             })
-            with rasterio.open(f"./rasters{month}_{year}_{variable}.tif", "w", **out_meta) as dest:
+
+            os.makedirs(os.path.dirname(file_path),
+                        exist_ok=True)  # Create the folder if it doesn't exist
+            with rasterio.open(file_path, "w", **out_meta) as dest:
                 dest.write(out_image)
         else:
             print(f"Failed to download {link}, status code: {r.status_code}")
@@ -67,10 +81,12 @@ def download_variable(variable, years, months, polygon, base_url):
     with requests.Session() as session:  # Reuse session for efficiency
         tasks = []
         with ThreadPoolExecutor(max_workers=10) as executor:
-            with tqdm(total=len(years) * len(months), desc=f'Processing variable: {variable}') as pbar:
+            with tqdm(total=len(years) * len(months),
+                      desc=f'Processing variable: {variable}') as pbar:
                 for year in years:
                     for month in months:
-                        task = executor.submit(download_and_process, variable, year, month, polygon, base_url, session)
+                        task = executor.submit(download_and_process, variable, year, month, polygon,
+                                               base_url, session)
                         tasks.append(task)
 
                 for future in as_completed(tasks):
@@ -99,14 +115,13 @@ def download_all(variables, years, months, polygon, base_url):
 if __name__ == "__main__":
     # Load and process the CSV into a GeoDataFrame
     df = pd.read_csv("/path/to/occurrences.csv", delimiter=";", low_memory=False)
-    geometry = gpd.points_from_xy(df.lon,
-                                  df.lat)  # Create geometry column (corrected lat/lon order)
+    geometry = gpd.points_from_xy(df.lon, df.lat)  # Create geometry column
     geo_df = gpd.GeoDataFrame(df, geometry=geometry)
 
     # Calculate bounds and create polygon geometry
     bounds = geo_df.total_bounds
-    bounds[:2] -= 10  # Expand bounds by 1 degree
-    bounds[2:] += 10
+    bounds[:2] -= 1  # Expand bounds by 1 degree
+    bounds[2:] += 1
     min_x, min_y, max_x, max_y = bounds
 
     # Define the vertices of the expanded polygon
@@ -121,4 +136,5 @@ if __name__ == "__main__":
     years = list(range(1979, 2000))
     months = [str(i).zfill(2) for i in range(1, 13)]
 
+    # Start the download process
     download_all(variables, years, months, polygon, base_url)
